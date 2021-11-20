@@ -538,6 +538,15 @@
    se considera que la cadena ingresada es una subcadena y el ingreso continua. De lo contrario, se la devuelve completa."
 )
 
+(defn sumar-parentesis [acumulado caracter]
+  (cond
+    (neg? acumulado) (reduced acumulado)
+    (= caracter (first (seq "(" ))) (inc acumulado)
+    (= caracter (first (seq ")" ))) (dec acumulado)
+    :else acumulado
+    )
+  )
+
 ; user=> (verificar-parentesis "(hola 'mundo")
 ; 1
 ; user=> (verificar-parentesis "(hola '(mundo)))")
@@ -548,8 +557,9 @@
 ; -1
 ; user=> (verificar-parentesis "(hola '(mundo) )")
 ; 0
-(defn verificar-parentesis
-  "Cuenta los parentesis en una cadena, sumando 1 si `(`, restando 1 si `)`. Si el contador se hace negativo, para y retorna -1."
+;"Cuenta los parentesis en una cadena, sumando 1 si `(`, restando 1 si `)`. Si el contador se hace negativo, para y retorna -1."
+(defn verificar-parentesis [cadena]
+  (reduce sumar-parentesis 0 (seq cadena))
 )
 
 ; user=> (actualizar-amb '(a 1 b 2 c 3) 'd 4)
