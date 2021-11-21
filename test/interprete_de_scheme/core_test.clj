@@ -75,3 +75,16 @@
     (is (= (list (symbol ";ERROR:") (symbol "unbound") (symbol "variable:") 'c) (buscar 'c '())))
     )
   )
+
+
+(deftest proteger-bool-en-str-test
+  (testing "Sin bool"
+    (is (= "" (proteger-bool-en-str "")))
+    (is (= "no hay bool" (proteger-bool-en-str "no hay bool")))
+    (is (= "#y #h #g #b t# f#" (proteger-bool-en-str "#y #h #g #b t# f#")))
+    )
+  (testing "Con bool"
+    (is (= "(or %F %f %t %T)" (proteger-bool-en-str "(or #F #f #t #T)")))
+    (is (= "(and (or %F %f %t %T) %T)" (proteger-bool-en-str "(and (or #F #f #t #T) #T)")))
+    )
+  )

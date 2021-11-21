@@ -658,8 +658,9 @@
 ; "(and (or %F %f %t %T) %T)"
 ; user=> (proteger-bool-en-str "")
 ; ""
-(defn proteger-bool-en-str
+(defn proteger-bool-en-str [cadena]
   "Cambia, en una cadena, #t por %t y #f por %f (y sus respectivas versiones en mayusculas), para poder aplicarle read-string."
+  (clojure.string/replace cadena #"#([tTfF])" (str "%" "$1"))
 )
 
 ; user=> (restaurar-bool (read-string (proteger-bool-en-str "(and (or #F #f #t #T) #T)")))
