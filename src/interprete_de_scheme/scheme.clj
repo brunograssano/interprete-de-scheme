@@ -608,11 +608,11 @@
   "Devuelve un ambiente actualizado con una clave (nombre de la variable o funcion) y su valor. 
   Si el valor es un error, el ambiente no se modifica. De lo contrario, se le carga o reemplaza la nueva informacion."
   (let [ambiente-vec (vec ambiente)]
-    (let [posicion (posicion-en-ambiente? ambiente-vec clave)]
+    (let [posicion-clave (posicion-en-ambiente? ambiente-vec clave)]
       (cond
         (error? valor) ambiente
-        (neg? posicion) (concat ambiente (list clave valor))
-        :else (apply list (assoc ambiente-vec (inc posicion) valor))
+        (neg? posicion-clave) (concat ambiente (list clave valor))
+        :else (apply list (assoc ambiente-vec (inc posicion-clave) valor))
         )
       )
     )
@@ -622,9 +622,15 @@
 ; 3
 ; user=> (buscar 'f '(a 1 b 2 c 3 d 4 e 5))
 ; (;ERROR: unbound variable: f)
-(defn buscar
+(defn buscar [clave ambiente]
   "Busca una clave en un ambiente (una lista con claves en las posiciones impares [1, 3, 5...] y valores en las pares [2, 4, 6...]
    y devuelve el valor asociado. Devuelve un error :unbound-variable si no la encuentra."
+  (let [posicion (posicion-en-ambiente? ambiente clave)]
+    (if (neg? posicion)
+      (list (symbol ";ERROR:") (symbol "unbound") (symbol "variable:") clave)
+      (/ (+ posicion 2) 2)
+      )
+    )
 )
 
 (defn es-error-o-warning? [elemento]

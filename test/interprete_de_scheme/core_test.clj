@@ -63,3 +63,15 @@
     (is (= '(+ + - - * * f +) (actualizar-amb '(+ + - - * * f /) 'f '+)))
     )
   )
+
+(deftest buscar-test
+  (testing "Busqueda de claves en ambiente"
+    (is (= 3 (buscar 'c '(a 1 b 2 c 3 d 4))))
+    (is (= 1 (buscar 'a '(a 1 b 2 c 3 d 4))))
+    (is (= 4 (buscar 'd '(a a b b c b d d))))
+    )
+  (testing "No se encuentra en el ambiente"
+    (is (= (list (symbol ";ERROR:") (symbol "unbound") (symbol "variable:") 'c) (buscar 'c '(a 1 b 2 d 4))))
+    (is (= (list (symbol ";ERROR:") (symbol "unbound") (symbol "variable:") 'c) (buscar 'c '())))
+    )
+  )
