@@ -2,16 +2,6 @@
   (:require [clojure.test :refer :all]
             [interprete-de-scheme.core :refer :all]))
 
-; user=> (verificar-parentesis "(hola 'mundo")
-; 1
-; user=> (verificar-parentesis "(hola '(mundo)))")
-; -1
-; user=> (verificar-parentesis "(hola '(mundo) () 6) 7)")
-; -1
-; user=> (verificar-parentesis "(hola '(mundo) () 6) 7) 9)")
-; -1
-; user=> (verificar-parentesis "(hola '(mundo) )")
-; 0
 (deftest verificar-parentesis-test
   (testing "Sin parentesis"
     (is (= 0 (verificar-parentesis "No tengo parentesis")))
