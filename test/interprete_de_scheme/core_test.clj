@@ -31,3 +31,17 @@
     (is (= 3 (verificar-parentesis "()()()(((")))
     )
   )
+
+
+(deftest error?-test
+  (testing "Sin error o warning"
+    (is (false? (error? '())))
+    (is (false? (error? '('No 'Tengo 'Error))))
+    )
+  (testing "Con error"
+    (is (true? (error? (list (symbol ";ERROR:") 'Hubo 'Error))))
+    )
+  (testing "Con warning"
+    (is (true? (error? (list (symbol ";WARNING:") 'Hubo 'Error))))
+    )
+  )
