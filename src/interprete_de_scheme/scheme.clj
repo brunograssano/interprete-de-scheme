@@ -578,6 +578,24 @@
   (reduce sumar-parentesis 0 (seq cadena))
 )
 
+(defn es-elemento-en-coleccion [buscado salto posicion elemento-actual]
+  (cond
+    (zero? (mod posicion salto)) (if (= buscado elemento-actual) (reduced posicion) (inc posicion))
+    :else (inc posicion)
+    )
+  )
+
+(defn posicion-en-ambiente? [ambiente clave]
+  (let [buscar-pares (partial es-elemento-en-coleccion clave 2)]
+    (let [resultado (reduce buscar-pares 0 ambiente)]
+      (if (< resultado (count ambiente))
+        resultado
+        -1
+        )
+      )
+    )
+  )
+
 ; user=> (actualizar-amb '(a 1 b 2 c 3) 'd 4)
 ; (a 1 b 2 c 3 d 4)
 ; user=> (actualizar-amb '(a 1 b 2 c 3) 'b 4)
@@ -586,9 +604,18 @@
 ; (a 1 b 2 c 3)
 ; user=> (actualizar-amb () 'b 7)
 ; (b 7)
-(defn actualizar-amb
+(defn actualizar-amb [ambiente clave valor]
   "Devuelve un ambiente actualizado con una clave (nombre de la variable o funcion) y su valor. 
   Si el valor es un error, el ambiente no se modifica. De lo contrario, se le carga o reemplaza la nueva informacion."
+  (let [ambiente-vec (vec ambiente)]
+    (let [posicion (posicion-en-ambiente? ambiente-vec clave)]
+      (cond
+        (error? valor) ambiente
+        (neg? posicion) (concat ambiente (list clave valor))
+        :else (apply list (assoc ambiente-vec (inc posicion) valor))
+        )
+      )
+    )
 )
 
 ; user=> (buscar 'c '(a 1 b 2 c 3 d 4 e 5))
@@ -613,7 +640,10 @@
 ; true
 (defn error? [lista]
   "Devuelve true o false, segun sea o no el arg. una lista con `;ERROR:` o `;WARNING:` como primer elemento."
-  (es-error-o-warning? (first lista))
+  (cond
+    (list? lista) (es-error-o-warning? (first lista))
+    :else false
+    )
 )
 
 ; user=> (proteger-bool-en-str "(or #F #f #t #T)")
