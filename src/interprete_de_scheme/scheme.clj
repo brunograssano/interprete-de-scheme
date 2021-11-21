@@ -667,8 +667,9 @@
 ; (and (or #F #f #t #T) #T)
 ; user=> (restaurar-bool (read-string "(and (or %F %f %t %T) %T)") )
 ; (and (or #F #f #t #T) #T)
-(defn restaurar-bool
+(defn restaurar-bool [cadena]
   "Cambia, en un codigo leido con read-string, %t por #t y %f por #f (y sus respectivas versiones en mayusculas)."
+  (clojure.string/replace cadena #"%([tTfF])" (str "#" "$1"))
 )
 
 ; user=> (igual? 'if 'IF)

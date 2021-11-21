@@ -88,3 +88,15 @@
     (is (= "(and (or %F %f %t %T) %T)" (proteger-bool-en-str "(and (or #F #f #t #T) #T)")))
     )
   )
+
+(deftest restaurar-bool-test
+  (testing "Sin bool"
+    (is (= "" (restaurar-bool "")))
+    (is (= "no hay bool" (restaurar-bool "no hay bool")))
+    (is (= "#y #h #g #b t# f#" (restaurar-bool "#y #h #g #b t# f#")))
+    )
+  (testing "Con bool"
+    (is (= "(or #F #f #t #T)" (restaurar-bool "(or %F %f %t %T)")))
+    (is (= "(and (or #F #f #t #T) #T)" (restaurar-bool "(and (or %F %f %t %T) %T)")))
+    )
+  )
