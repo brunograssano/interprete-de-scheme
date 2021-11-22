@@ -720,8 +720,12 @@
 ; #t
 ; user=> (fnc-equal? '(1 1 2 1))
 ; #f
-(defn fnc-equal?
+(defn fnc-equal? [coleccion]
   "Compara elementos. Si son iguales, devuelve #t. Si no, #f."
+  (if (every? igual? coleccion)
+    (symbol "#t")
+    (symbol "#f")
+    )
 )
 
 ; user=> (fnc-read ())

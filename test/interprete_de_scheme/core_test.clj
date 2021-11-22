@@ -131,3 +131,23 @@
     (is (= (list (symbol ";ERROR:") (symbol "append:") 'Wrong 'type 'in 'arg 'A) (fnc-append '((1) (2) (3) (4) (5) A (7) (8) 9))))
     )
   )
+
+
+(deftest fnc-equal?-test
+  (testing "Resultado verdadero"
+    (is (= (symbol "#t") (fnc-equal? '())))
+    (is (= (symbol "#t") (fnc-equal? '((symbol "#f")))))
+    (is (= (symbol "#t") (fnc-equal? '(1 1))))
+    (is (= (symbol "#t") (fnc-equal? '(nil nil))))
+    (is (= (symbol "#t") (fnc-equal? '(1 1 1 1 1 1))))
+    (is (= (symbol "#t") (fnc-equal? '(A a A a a a a A A))))
+    (is (= (symbol "#t") (fnc-equal? '("a" "a" "a" "a"))))
+    (is (= (symbol "#t") (fnc-equal? '((1) (1) (1) (1)))))
+    )
+  (testing "Resultado falso"
+    (is (= (symbol "#f") (fnc-equal? '(1 2))))
+    (is (= (symbol "#f") (fnc-equal? '(nil 0))))
+    (is (= (symbol "#f") (fnc-equal? '(A B))))
+    (is (= (symbol "#f") (fnc-equal? '((1) 1))))
+    (is (= (symbol "#f") (fnc-equal? '("a" "b" "c" "a"))))
+  )
