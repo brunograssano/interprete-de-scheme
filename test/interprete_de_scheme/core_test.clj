@@ -100,3 +100,34 @@
     (is (= "(and (or #F #f #t #T) #T)" (restaurar-bool "(and (or %F %f %t %T) %T)")))
     )
   )
+
+(deftest igual?-test
+  (testing "Igualdades"
+    (is (true? (igual? 'if 'IF)))
+    (is (true? (igual? 'if 'if)))
+    (is (true? (igual? 'If 'iF)))
+    (is (true? (igual? "A" "A")))
+    (is (true? (igual? 1 1)))
+    (is (true? (igual? '(1 2) '(1 2))))
+    (is (true? (igual? nil nil)))
+    (is (false? (igual? 'if "if")))
+    (is (false? (igual? 'if "'if")))
+    (is (false? (igual? "A" "a")))
+    (is (false? (igual? 1 "1")))
+    (is (false? (igual? nil 0)))
+    )
+  )
+
+(deftest fnc-append-test
+  (testing "Con argumentos correctos"
+    (is (= '() (fnc-append '())))
+    (is (= '(1 2 3 4 5 6 7) (fnc-append '( (1 2) (3) (4 5) (6 7)))))
+    (is (= '(1 2 3 4 5 6 7 8 9) (fnc-append '( (1) (2) (3) (4) (5) (6) (7) (8) (9) ))))
+    )
+  (testing "Con argumentos erroneos"
+    (is (= (list (symbol ";ERROR:") (symbol "append:") 'Wrong 'type 'in 'arg "Argumento con error") (fnc-append '("Argumento con error"))))
+    (is (= (list (symbol ";ERROR:") (symbol "append:") 'Wrong 'type 'in 'arg 8) (fnc-append '((1) (2) (3) (4) (5) (6) (7) 8 (9)))))
+    (is (= (list (symbol ";ERROR:") (symbol "append:") 'Wrong 'type 'in 'arg 9) (fnc-append '((1) (2) (3) (4) (5) (6) (7) (8) 9))))
+    (is (= (list (symbol ";ERROR:") (symbol "append:") 'Wrong 'type 'in 'arg 'A) (fnc-append '((1) (2) (3) (4) (5) A (7) (8) 9))))
+    )
+  )
