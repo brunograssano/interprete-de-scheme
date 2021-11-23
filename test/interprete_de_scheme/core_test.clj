@@ -150,4 +150,36 @@
     (is (= (symbol "#f") (fnc-equal? '(A B))))
     (is (= (symbol "#f") (fnc-equal? '((1) 1))))
     (is (= (symbol "#f") (fnc-equal? '("a" "b" "c" "a"))))
+    )
+  )
+
+(deftest fnc-sumar-test
+  (testing "Se manda a sumar una lista correcta"
+    (is (zero? (fnc-sumar '())))
+    (is (= 1 (fnc-sumar '(1))))
+    (is (= 2 (fnc-sumar '(1 1))))
+    (is (= 3 (fnc-sumar '(1 1 1))))
+    (is (= 20 (fnc-sumar '(0 1 1 2 3 5 8))))
+    )
+  (testing "Se manda a sumar una lista con argumentos no validos"
+    (is (= (list (symbol ";ERROR:") (symbol "+:") 'Wrong 'type 'in 'arg1 'A) (fnc-sumar '(A))))
+    (is (= (list (symbol ";ERROR:") (symbol "+:") 'Wrong 'type 'in 'arg2 'B) (fnc-sumar '(2 B))))
+    (is (= (list (symbol ";ERROR:") (symbol "+:") 'Wrong 'type 'in 'arg2 'D) (fnc-sumar '(2 3 4 D))))
+    )
+  )
+
+(deftest fnc-restar-test
+  (testing "Se manda a restar una lista correcta"
+    (is (= -1 (fnc-restar '(1))))
+    (is (= -5 (fnc-restar '(5))))
+    (is (= 0 (fnc-restar '(1 1))))
+    (is (= -1 (fnc-restar '(1 1 1))))
+    (is (= -20 (fnc-restar '(0 1 1 2 3 5 8))))
+    )
+  (testing "Se manda a restar una lista con argumentos no validos"
+    (is (= (list (symbol ";ERROR:") (symbol "-:") 'Wrong 'number 'of 'args 'given) (fnc-restar '())))
+    (is (= (list (symbol ";ERROR:") (symbol "-:") 'Wrong 'type 'in 'arg1 'A) (fnc-restar '(A))))
+    (is (= (list (symbol ";ERROR:") (symbol "-:") 'Wrong 'type 'in 'arg2 'B) (fnc-restar '(2 B))))
+    (is (= (list (symbol ";ERROR:") (symbol "-:") 'Wrong 'type 'in 'arg2 'D) (fnc-restar '(2 3 4 D))))
+    )
   )

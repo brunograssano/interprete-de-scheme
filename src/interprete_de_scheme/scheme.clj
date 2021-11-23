@@ -750,6 +750,13 @@
   "Devuelve la lectura de un elemento de Scheme desde la terminal/consola."
 )
 
+(defn operacion [accion accion-str acumulado numero]
+  (cond
+    (not (number? numero)) (reduced (list (symbol ";ERROR:") (symbol (str accion-str ":")) 'Wrong 'type 'in 'arg2 numero))
+    :else (accion acumulado numero)
+    )
+  )
+
 ; user=> (fnc-sumar ())
 ; 0
 ; user=> (fnc-sumar '(3))
@@ -766,8 +773,13 @@
 ; (;ERROR: +: Wrong type in arg2 A)
 ; user=> (fnc-sumar '(3 4 A 6))
 ; (;ERROR: +: Wrong type in arg2 A)
-(defn fnc-sumar
+(defn fnc-sumar [lista]
   "Suma los elementos de una lista."
+  (cond
+    (zero? (count lista)) 0
+    (not (number? (peek lista))) (list (symbol ";ERROR:") (symbol  (str "+:")) 'Wrong 'type 'in 'arg1 (peek lista))
+    :else (reduce (partial operacion + "+") lista)
+    )
 )
 
 ; user=> (fnc-restar ())
@@ -786,8 +798,14 @@
 ; (;ERROR: -: Wrong type in arg2 A)
 ; user=> (fnc-restar '(3 4 A 6))
 ; (;ERROR: -: Wrong type in arg2 A)
-(defn fnc-restar
+(defn fnc-restar [lista]
   "Resta los elementos de un lista."
+  (cond
+    (zero? (count lista))(list (symbol ";ERROR:") (symbol "-:") 'Wrong 'number 'of 'args 'given)
+    (not (number? (peek lista))) (list (symbol ";ERROR:") (symbol  (str "-:")) 'Wrong 'type 'in 'arg1 (peek lista))
+    (= 1 (count lista)) (- (peek lista))
+    :else (reduce (partial operacion - "-") lista)
+    )
 )
 
 ; user=> (fnc-menor ())
