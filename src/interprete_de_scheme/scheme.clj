@@ -672,6 +672,10 @@
   (clojure.string/replace cadena #"%([tTfF])" (str "#" "$1"))
 )
 
+(defn normalizar-symbol [simbolo]
+  (clojure.string/upper-case (str simbolo))
+  )
+
 ; user=> (igual? 'if 'IF)
 ; true
 ; user=> (igual? 'if 'if)
@@ -682,8 +686,12 @@
 ; false
 ; user=> (igual? 6 "6")
 ; false
-(defn igual?
+(defn igual? [elemento1 elemento2]
   "Verifica la igualdad entre dos elementos al estilo de Scheme (case-insensitive)"
+  (cond
+    (and (symbol? elemento1) (symbol? elemento2)) (= (normalizar-symbol elemento1) (normalizar-symbol elemento2))
+    :else (= elemento1 elemento2)
+    )
 )
 
 (defn fusionar-listas [lista elemento-actual]
