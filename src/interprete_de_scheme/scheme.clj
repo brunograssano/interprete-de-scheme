@@ -908,9 +908,9 @@
   "Devuelve #t si los numeros de una lista estan en orden decreciente; si no, #f."
   (cond
     (zero? (count lista)) (symbol "#t")
-    (not (number? (peek lista))) (list (symbol ";ERROR:") (symbol  (str "<=:")) 'Wrong 'type 'in 'arg1 (peek lista))
+    (not (number? (peek lista))) (list (symbol ";ERROR:") (symbol  (str ">=:")) 'Wrong 'type 'in 'arg1 (peek lista))
     (= 1 (count lista)) (symbol "#t")
-    :else (let [resultado (reduce (partial esta-ordenada? <= "<=") lista)]
+    :else (let [resultado (reduce (partial esta-ordenada? >= ">=") lista)]
             (if (number? resultado)
               (symbol "#t")
               resultado)

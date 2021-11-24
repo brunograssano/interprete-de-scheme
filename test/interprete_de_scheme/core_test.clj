@@ -188,7 +188,7 @@
   (testing "Se manda una lista en orden estrictamente creciente"
     (is (= (symbol "#t") (fnc-menor '())))
     (is (= (symbol "#t") (fnc-menor '(1))))
-    (is (= (symbol "#t") (fnc-menor '(5))))
+    (is (= (symbol "#t") (fnc-menor '(-3 -2 -1 0 5))))
     (is (= (symbol "#t") (fnc-menor '(1 2))))
     (is (= (symbol "#t") (fnc-menor '(1 2 3))))
     (is (= (symbol "#t") (fnc-menor '(0 1 5 10 11 15 18))))
@@ -203,5 +203,50 @@
     (is (= (list (symbol ";ERROR:") (symbol "<:") 'Wrong 'type 'in 'arg2 'B) (fnc-menor '(2 B))))
     (is (= (list (symbol ";ERROR:") (symbol "<:") 'Wrong 'type 'in 'arg2 'D) (fnc-menor '(2 3 4 D))))
     (is (= (list (symbol ";ERROR:") (symbol "<:") 'Wrong 'type 'in 'arg2 'D) (fnc-menor '(2 3 4 D 5))))
+    )
+  )
+
+(deftest fnc-mayor-test
+  (testing "Se manda una lista en orden estrictamente decreciente"
+    (is (= (symbol "#t") (fnc-mayor '())))
+    (is (= (symbol "#t") (fnc-mayor '(1))))
+    (is (= (symbol "#t") (fnc-mayor '(5))))
+    (is (= (symbol "#t") (fnc-mayor '(2 1))))
+    (is (= (symbol "#t") (fnc-mayor '(3 2 1))))
+    (is (= (symbol "#t") (fnc-mayor '(18 17 15 13 11 10 9 7 5 3 2 1 0 -3 -6))))
+    )
+  (testing "Se manda una lista desordenada (no decreciente)"
+    (is (= (symbol "#f") (fnc-mayor '(2 1 2))))
+    (is (= (symbol "#f") (fnc-mayor '(1 2 3 4 5 4 3 2 1))))
+    (is (= (symbol "#f") (fnc-mayor '(100 99 98 99 100))))
+    )
+  (testing "Se manda una lista con argumentos no validos"
+    (is (= (list (symbol ";ERROR:") (symbol ">:") 'Wrong 'type 'in 'arg1 'A) (fnc-mayor '(A))))
+    (is (= (list (symbol ";ERROR:") (symbol ">:") 'Wrong 'type 'in 'arg2 'B) (fnc-mayor '(2 B))))
+    (is (= (list (symbol ";ERROR:") (symbol ">:") 'Wrong 'type 'in 'arg2 'D) (fnc-mayor '(60 D 58))))
+    (is (= (list (symbol ";ERROR:") (symbol ">:") 'Wrong 'type 'in 'arg2 'D) (fnc-mayor '(4 3 2 D 1))))
+    )
+  )
+
+(deftest fnc-mayor-o-igual-test
+  (testing "Se manda una lista en orden decreciente"
+    (is (= (symbol "#t") (fnc-mayor-o-igual '())))
+    (is (= (symbol "#t") (fnc-mayor-o-igual '(1))))
+    (is (= (symbol "#t") (fnc-mayor-o-igual '(5))))
+    (is (= (symbol "#t") (fnc-mayor-o-igual '(0 0 0 0 0 0))))
+    (is (= (symbol "#t") (fnc-mayor-o-igual '(2 2 2 2 1))))
+    (is (= (symbol "#t") (fnc-mayor-o-igual '(3 3 3 2 2 1 1))))
+    (is (= (symbol "#t") (fnc-mayor-o-igual '(18 17 17 15 13 11 10 9 9 7 5 3 2 1 0 -3 -6 -6))))
+    )
+  (testing "Se manda una lista desordenada (no decreciente)"
+    (is (= (symbol "#f") (fnc-mayor-o-igual '(2 2 1 1 2))))
+    (is (= (symbol "#f") (fnc-mayor-o-igual '(1 2 3 4 5 4 3 2 1))))
+    (is (= (symbol "#f") (fnc-mayor-o-igual '(100 99 98 98 98 99 100))))
+    )
+  (testing "Se manda una lista con argumentos no validos"
+    (is (= (list (symbol ";ERROR:") (symbol ">=:") 'Wrong 'type 'in 'arg1 'A) (fnc-mayor-o-igual '(A))))
+    (is (= (list (symbol ";ERROR:") (symbol ">=:") 'Wrong 'type 'in 'arg2 'B) (fnc-mayor-o-igual '(2 B))))
+    (is (= (list (symbol ";ERROR:") (symbol ">=:") 'Wrong 'type 'in 'arg2 'D) (fnc-mayor-o-igual '(60 D 58))))
+    (is (= (list (symbol ";ERROR:") (symbol ">=:") 'Wrong 'type 'in 'arg2 'D) (fnc-mayor-o-igual '(4 3 2 D D 1))))
     )
   )
