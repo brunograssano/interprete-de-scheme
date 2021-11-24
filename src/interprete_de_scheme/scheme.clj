@@ -748,6 +748,15 @@
 ; (;ERROR: Wrong number of args given #<primitive-procedure read>)
 (defn fnc-read
   "Devuelve la lectura de un elemento de Scheme desde la terminal/consola."
+  ([]
+   (symbol (leer-entrada))
+   )
+  ([puerto]
+   (list (symbol ";ERROR:") (symbol "read:") 'Use 'of 'I/O 'ports 'not 'implemented)
+   )
+  ([puerto & more]
+   (list (symbol ";ERROR:") 'Wrong 'number 'of 'args 'given (symbol "#<primitive-procedure read>"))
+   )
 )
 
 (defn operacion [accion accion-str acumulado numero]
