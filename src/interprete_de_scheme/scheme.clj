@@ -808,6 +808,14 @@
     )
 )
 
+(defn esta-ordenada? [orden orden-str primero segundo]
+  (cond
+    (not (number? segundo)) (reduced (list (symbol ";ERROR:") (symbol (str orden-str ":")) 'Wrong 'type 'in 'arg2 segundo))
+    (orden primero segundo) segundo
+    :else (reduced (symbol "#f"))
+    )
+  )
+
 ; user=> (fnc-menor ())
 ; #t
 ; user=> (fnc-menor '(1))
@@ -828,8 +836,18 @@
 ; (;ERROR: <: Wrong type in arg2 A)
 ; user=> (fnc-menor '(1 2 A 4))
 ; (;ERROR: <: Wrong type in arg2 A)
-(defn fnc-menor
+(defn fnc-menor [lista]
   "Devuelve #t si los numeros de una lista estan en orden estrictamente creciente; si no, #f."
+  (cond
+    (zero? (count lista)) (symbol "#t")
+    (not (number? (peek lista))) (list (symbol ";ERROR:") (symbol  (str "<:")) 'Wrong 'type 'in 'arg1 (peek lista))
+    (= 1 (count lista)) (symbol "#t")
+    :else (let [resultado (reduce (partial esta-ordenada? < "<") lista)]
+            (if (number? resultado)
+              (symbol "#t")
+              resultado)
+            )
+    )
 )
 
 ; user=> (fnc-mayor ())
@@ -852,8 +870,18 @@
 ; (;ERROR: <: Wrong type in arg2 A)
 ; user=> (fnc-mayor '(3 2 A 1))
 ; (;ERROR: <: Wrong type in arg2 A)
-(defn fnc-mayor
+(defn fnc-mayor [lista]
   "Devuelve #t si los numeros de una lista estan en orden estrictamente decreciente; si no, #f."
+  (cond
+    (zero? (count lista)) (symbol "#t")
+    (not (number? (peek lista))) (list (symbol ";ERROR:") (symbol  (str ">:")) 'Wrong 'type 'in 'arg1 (peek lista))
+    (= 1 (count lista)) (symbol "#t")
+    :else (let [resultado (reduce (partial esta-ordenada? > ">") lista)]
+            (if (number? resultado)
+              (symbol "#t")
+              resultado)
+            )
+    )
 )
 
 ; user=> (fnc-mayor-o-igual ())
@@ -876,8 +904,18 @@
 ; (;ERROR: <: Wrong type in arg2 A)
 ; user=> (fnc-mayor-o-igual '(3 2 A 1))
 ; (;ERROR: <: Wrong type in arg2 A)
-(defn fnc-mayor-o-igual
+(defn fnc-mayor-o-igual [lista]                             ; TODO refactorizar a una funcion generica - patron Template Method
   "Devuelve #t si los numeros de una lista estan en orden decreciente; si no, #f."
+  (cond
+    (zero? (count lista)) (symbol "#t")
+    (not (number? (peek lista))) (list (symbol ";ERROR:") (symbol  (str "<=:")) 'Wrong 'type 'in 'arg1 (peek lista))
+    (= 1 (count lista)) (symbol "#t")
+    :else (let [resultado (reduce (partial esta-ordenada? <= "<=") lista)]
+            (if (number? resultado)
+              (symbol "#t")
+              resultado)
+            )
+    )
 )
 
 ; user=> (evaluar-escalar 32 '(x 6 y 11 z "hola"))

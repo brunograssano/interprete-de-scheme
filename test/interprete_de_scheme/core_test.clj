@@ -183,3 +183,25 @@
     (is (= (list (symbol ";ERROR:") (symbol "-:") 'Wrong 'type 'in 'arg2 'D) (fnc-restar '(2 3 4 D))))
     )
   )
+
+(deftest fnc-menor-test
+  (testing "Se manda una lista en orden estrictamente creciente"
+    (is (= (symbol "#t") (fnc-menor '())))
+    (is (= (symbol "#t") (fnc-menor '(1))))
+    (is (= (symbol "#t") (fnc-menor '(5))))
+    (is (= (symbol "#t") (fnc-menor '(1 2))))
+    (is (= (symbol "#t") (fnc-menor '(1 2 3))))
+    (is (= (symbol "#t") (fnc-menor '(0 1 5 10 11 15 18))))
+    )
+  (testing "Se manda una lista desordenada (no creciente)"
+    (is (= (symbol "#f") (fnc-menor '(2 1))))
+    (is (= (symbol "#f") (fnc-menor '(1 2 3 4 5 4 3 2 1))))
+    (is (= (symbol "#f") (fnc-menor '(0 100 200 0))))
+    )
+  (testing "Se manda una lista con argumentos no validos"
+    (is (= (list (symbol ";ERROR:") (symbol "<:") 'Wrong 'type 'in 'arg1 'A) (fnc-menor '(A))))
+    (is (= (list (symbol ";ERROR:") (symbol "<:") 'Wrong 'type 'in 'arg2 'B) (fnc-menor '(2 B))))
+    (is (= (list (symbol ";ERROR:") (symbol "<:") 'Wrong 'type 'in 'arg2 'D) (fnc-menor '(2 3 4 D))))
+    (is (= (list (symbol ";ERROR:") (symbol "<:") 'Wrong 'type 'in 'arg2 'D) (fnc-menor '(2 3 4 D 5))))
+    )
+  )
