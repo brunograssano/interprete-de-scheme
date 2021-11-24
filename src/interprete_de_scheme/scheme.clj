@@ -628,7 +628,7 @@
   (let [posicion (posicion-en-ambiente? ambiente clave)]
     (if (neg? posicion)
       (list (symbol ";ERROR:") (symbol "unbound") (symbol "variable:") clave)
-      (/ (+ posicion 2) 2)
+      (nth ambiente (inc posicion))
       )
     )
 )
@@ -937,8 +937,12 @@
 ; ("hola" (x 6 y 11 z "hola"))
 ; user=> (evaluar-escalar 'n '(x 6 y 11 z "hola"))
 ; ((;ERROR: unbound variable: n) (x 6 y 11 z "hola"))
-(defn evaluar-escalar
+(defn evaluar-escalar [escalar ambiente]
   "Evalua una expresion escalar. Devuelve una lista con el resultado y un ambiente."
+  (if (symbol? escalar)
+    (list (buscar escalar ambiente) ambiente)
+    (list escalar ambiente)
+    )
 )
 
 ; user=> (evaluar-define '(define x 2) '(x 1))

@@ -68,7 +68,8 @@
   (testing "Busqueda de claves en ambiente"
     (is (= 3 (buscar 'c '(a 1 b 2 c 3 d 4))))
     (is (= 1 (buscar 'a '(a 1 b 2 c 3 d 4))))
-    (is (= 4 (buscar 'd '(a a b b c b d d))))
+    (is (= 'd (buscar 'd '(a a b b c b d d))))
+    (is (= 7 (buscar 'd '(a 1 b 2 c 3 d 7 e 9))))
     )
   (testing "No se encuentra en el ambiente"
     (is (= (list (symbol ";ERROR:") (symbol "unbound") (symbol "variable:") 'c) (buscar 'c '(a 1 b 2 d 4))))
@@ -248,5 +249,23 @@
     (is (= (list (symbol ";ERROR:") (symbol ">=:") 'Wrong 'type 'in 'arg2 'B) (fnc-mayor-o-igual '(2 B))))
     (is (= (list (symbol ";ERROR:") (symbol ">=:") 'Wrong 'type 'in 'arg2 'D) (fnc-mayor-o-igual '(60 D 58))))
     (is (= (list (symbol ";ERROR:") (symbol ">=:") 'Wrong 'type 'in 'arg2 'D) (fnc-mayor-o-igual '(4 3 2 D D 1))))
+    )
+  )
+
+
+(deftest evaluar-escalar-test
+  (testing "Busqueda con literales"
+    (is (= '(5 (a 1 b 2 c 3 d 4)) (evaluar-escalar 5 '(a 1 b 2 c 3 d 4))))
+    (is (= '("hola" (a 1 b 2 c 3 d 4)) (evaluar-escalar "hola" '(a 1 b 2 c 3 d 4))))
+    (is (= '(1 (a 1 b 2 c 3 d 4)) (evaluar-escalar 1 '(a 1 b 2 c 3 d 4))))
+    )
+  (testing "Busqueda en el ambiente"
+    (is (= '(3 (a 1 b 2 c 3 d 4)) (evaluar-escalar 'c '(a 1 b 2 c 3 d 4))))
+    (is (= '("hola" (a 1 b "hola" c 3 d 4)) (evaluar-escalar 'b '(a 1 b "hola" c 3 d 4))))
+    (is (= '(7 (a 1 b 2 c 3 d 4 e 7)) (evaluar-escalar 'e '(a 1 b 2 c 3 d 4 e 7))))
+    )
+  (testing "No se encuentra en el ambiente"
+    (is (= (list (list (symbol ";ERROR:") (symbol "unbound") (symbol "variable:") 'c) '(a 1 b 2 d 4)) (evaluar-escalar 'c '(a 1 b 2 d 4))))
+    (is (= (list (list (symbol ";ERROR:") (symbol "unbound") (symbol "variable:") 'c) '()) (evaluar-escalar 'c '())))
     )
   )
