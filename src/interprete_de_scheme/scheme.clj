@@ -117,7 +117,7 @@
 (defn evaluar
   "Evalua una expresion `expre` en un ambiente. Devuelve un lista con un valor resultante y un ambiente."
   [expre amb]
-  (if (and (seq? expre) (or (empty? expre) (error? expre))) ; si `expre` es () o error, devolverla intacta
+  (if (and (seq? expre) (or (empty? expre) (error? expre)) ) ; si `expre` es () o error, devolverla intacta
       (list expre amb)                                      ; de lo contrario, evaluarla
       (cond
         (not (seq? expre))             (evaluar-escalar expre amb)
@@ -133,8 +133,18 @@
         (igual? (first expre) 'load) (evaluar-load expre amb)
         (igual? (first expre) 'set!) (evaluar-set! expre amb)
         :else (let [res-eval-1 (evaluar (first expre) amb),
-                    res-eval-2 (reduce (fn [x y] (let [res-eval-3 (evaluar y (first x))] (cons (second res-eval-3) (concat (next x) (list (first res-eval-3)))))) (cons (list (second res-eval-1)) (next expre)))]
-                    (aplicar (first res-eval-1) (next res-eval-2) (first res-eval-2))))))
+                    res-eval-2 (reduce (fn [x y]
+                                         (let [res-eval-3 (evaluar y (first x))]
+                                           (cons (second res-eval-3) (concat (next x) (list (first res-eval-3))))
+                                           )
+                                         ) (cons (list (second res-eval-1)) (next expre))
+                                       )
+                    ]
+                    (aplicar (first res-eval-1) (next res-eval-2) (first res-eval-2))
+                    )
+        )
+      )
+  )
 
 
 (defn aplicar
@@ -666,8 +676,25 @@
 ; ""
 (defn proteger-bool-en-str [cadena]
   "Cambia, en una cadena, #t por %t y #f por %f (y sus respectivas versiones en mayusculas), para poder aplicarle read-string."
-  (clojure.string/replace cadena #"#([tTfF])" (str "%" "$1"))
+  (st/replace cadena #"#([tTfF])" (str "%" "$1"))
 )
+
+(defn restaurar-secuencias [lista]
+  (if (list? lista)
+        (do
+          (apply list (replace
+            {(symbol "%f")(symbol "#f"),
+             (symbol "%F")(symbol "#F"),
+             (symbol "%t")(symbol "#t"),
+             (symbol "%T")(symbol "#T")}
+            (vec (map restaurar-secuencias lista))
+            )
+           )
+          )
+        lista
+    )
+  )
+
 
 ; user=> (restaurar-bool (read-string (proteger-bool-en-str "(and (or #F #f #t #T) #T)")))
 ; (and (or #F #f #t #T) #T)
@@ -675,11 +702,11 @@
 ; (and (or #F #f #t #T) #T)
 (defn restaurar-bool [cadena]
   "Cambia, en un codigo leido con read-string, %t por #t y %f por #f (y sus respectivas versiones en mayusculas)."
-  (clojure.string/replace cadena #"%([tTfF])" (str "#" "$1"))
-)
+  (restaurar-secuencias (read-string cadena))
+)                      ;(st/replace cadena #"%([tTfF])" (str "#" "$1"))
 
 (defn normalizar-symbol [simbolo]
-  (clojure.string/upper-case (str simbolo))
+  (st/upper-case (str simbolo))
   )
 
 ; user=> (igual? 'if 'IF)

@@ -93,13 +93,15 @@
 
 (deftest restaurar-bool-test
   (testing "Sin bool"
-    (is (= "" (restaurar-bool "")))
-    (is (= "no hay bool" (restaurar-bool "no hay bool")))
-    (is (= "#y #h #g #b t# f#" (restaurar-bool "#y #h #g #b t# f#")))
+    (is (= '() (restaurar-bool "()")))
+    (is (= '(no hay bool) (restaurar-bool "(no hay bool)")))
+    (is (= '(+ 1 1) (restaurar-bool "(+ 1 1)")))
+    (is (= '(- 1 1) (restaurar-bool "(- 1 1)")))
+    (is (= '(zero? 0) (restaurar-bool "(zero? 0)")))
     )
   (testing "Con bool"
-    (is (= "(or #F #f #t #T)" (restaurar-bool "(or %F %f %t %T)")))
-    (is (= "(and (or #F #f #t #T) #T)" (restaurar-bool "(and (or %F %f %t %T) %T)")))
+    (is (= (list 'or (symbol "#F") (symbol "#f") (symbol "#t") (symbol "#T")) (restaurar-bool "(or %F %f %t %T)")))
+    (is (= (list 'and (list 'or (symbol "#F") (symbol "#f") (symbol "#t") (symbol "#T")) (symbol "#T")) (restaurar-bool "(and (or %F %f %t %T) %T)")))
     )
   )
 
