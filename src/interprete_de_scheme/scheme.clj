@@ -713,6 +713,13 @@
   (reduce fusionar-listas '() listas)
 )
 
+(defn comparar-coleccion [primero segundo]
+  (if (igual? primero segundo)
+    segundo
+    (reduced :elements-are-not-equal)
+    )
+  )
+
 ; user=> (fnc-equal? ())
 ; #t
 ; user=> (fnc-equal? '(A))
@@ -731,9 +738,10 @@
 ; #f
 (defn fnc-equal? [coleccion]
   "Compara elementos. Si son iguales, devuelve #t. Si no, #f."
-  (if (every? igual? coleccion)
-    (symbol "#t")
-    (symbol "#f")
+  (cond
+    (empty? coleccion) (symbol "#t")
+    (= :elements-are-not-equal (reduce comparar-coleccion coleccion)) (symbol "#f")
+    :else (symbol "#t")
     )
 )
 
