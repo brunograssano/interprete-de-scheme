@@ -702,8 +702,11 @@
 ; (and (or #F #f #t #T) #T)
 (defn restaurar-bool [cadena]
   "Cambia, en un codigo leido con read-string, %t por #t y %f por #f (y sus respectivas versiones en mayusculas)."
-  (restaurar-secuencias (read-string cadena))
-)                      ;(st/replace cadena #"%([tTfF])" (str "#" "$1"))
+  (if (string? cadena)
+    (restaurar-secuencias (read-string cadena))
+    (restaurar-secuencias cadena)
+    )
+)
 
 (defn normalizar-symbol [simbolo]
   (st/upper-case (str simbolo))
@@ -827,7 +830,7 @@
   "Suma los elementos de una lista."
   (cond
     (zero? (count lista)) 0
-    (not (number? (peek lista))) (list (symbol ";ERROR:") (symbol  (str "+:")) 'Wrong 'type 'in 'arg1 (peek lista))
+    (not (number? (first lista))) (list (symbol ";ERROR:") (symbol  (str "+:")) 'Wrong 'type 'in 'arg1 (first lista))
     :else (reduce (partial operacion + "+") lista)
     )
 )
@@ -852,8 +855,8 @@
   "Resta los elementos de un lista."
   (cond
     (zero? (count lista))(list (symbol ";ERROR:") (symbol "-:") 'Wrong 'number 'of 'args 'given)
-    (not (number? (peek lista))) (list (symbol ";ERROR:") (symbol  (str "-:")) 'Wrong 'type 'in 'arg1 (peek lista))
-    (= 1 (count lista)) (- (peek lista))
+    (not (number? (first lista))) (list (symbol ";ERROR:") (symbol  (str "-:")) 'Wrong 'type 'in 'arg1 (first lista))
+    (= 1 (count lista)) (- (first lista))
     :else (reduce (partial operacion - "-") lista)
     )
 )
@@ -890,7 +893,7 @@
   "Devuelve #t si los numeros de una lista estan en orden estrictamente creciente; si no, #f."
   (cond
     (zero? (count lista)) (symbol "#t")
-    (not (number? (peek lista))) (list (symbol ";ERROR:") (symbol  (str "<:")) 'Wrong 'type 'in 'arg1 (peek lista))
+    (not (number? (first lista))) (list (symbol ";ERROR:") (symbol  (str "<:")) 'Wrong 'type 'in 'arg1 (first lista))
     (= 1 (count lista)) (symbol "#t")
     :else (let [resultado (reduce (partial esta-ordenada? < "<") lista)]
             (if (number? resultado)
@@ -924,7 +927,7 @@
   "Devuelve #t si los numeros de una lista estan en orden estrictamente decreciente; si no, #f."
   (cond
     (zero? (count lista)) (symbol "#t")
-    (not (number? (peek lista))) (list (symbol ";ERROR:") (symbol  (str ">:")) 'Wrong 'type 'in 'arg1 (peek lista))
+    (not (number? (first lista))) (list (symbol ";ERROR:") (symbol  (str ">:")) 'Wrong 'type 'in 'arg1 (first lista))
     (= 1 (count lista)) (symbol "#t")
     :else (let [resultado (reduce (partial esta-ordenada? > ">") lista)]
             (if (number? resultado)
@@ -958,7 +961,7 @@
   "Devuelve #t si los numeros de una lista estan en orden decreciente; si no, #f."
   (cond
     (zero? (count lista)) (symbol "#t")
-    (not (number? (peek lista))) (list (symbol ";ERROR:") (symbol  (str ">=:")) 'Wrong 'type 'in 'arg1 (peek lista))
+    (not (number? (first lista))) (list (symbol ";ERROR:") (symbol  (str ">=:")) 'Wrong 'type 'in 'arg1 (first lista))
     (= 1 (count lista)) (symbol "#t")
     :else (let [resultado (reduce (partial esta-ordenada? >= ">=") lista)]
             (if (number? resultado)
