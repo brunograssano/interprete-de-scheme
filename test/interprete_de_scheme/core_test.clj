@@ -1,6 +1,7 @@
 (ns interprete-de-scheme.core-test
   (:require [clojure.test :refer :all]
-            [interprete-de-scheme.core :refer :all]))
+            [interprete-de-scheme.core :refer :all]
+            [interprete-de-scheme.scheme :refer :all]))
 
 (deftest verificar-parentesis-test
   (testing "Sin parentesis"
@@ -47,7 +48,7 @@
   )
 
 
-(deftest
+(deftest actualizar-amb-test
   (testing "Agregar al ambiente"
     (is (= '(a 1) (actualizar-amb '() 'a 1)))
     (is (= '(a 1 b 2 c 3 d 4) (actualizar-amb '(a 1 b 2 c 3) 'd 4)))

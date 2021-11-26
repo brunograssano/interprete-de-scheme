@@ -1,3 +1,4 @@
+(ns interprete-de-scheme.scheme)
 (require '[clojure.string :as st :refer [blank? starts-with? ends-with? lower-case]]
          '[clojure.java.io :refer [delete-file reader]]
          '[clojure.walk :refer [postwalk postwalk-replace]])
@@ -545,7 +546,7 @@
     )
   )
   ([entrada-anterior]
-   (let [entrada (apply str (concat entrada-anterior (read-line)))]
+   (let [entrada (apply str (concat entrada-anterior " " (read-line)))]
      (if (zero? (verificar-parentesis entrada))
        entrada
        (leer-entrada entrada)
@@ -961,7 +962,7 @@
 ; ((;ERROR: define: bad variable (define () 2)) (x 1))
 ; user=> (evaluar-define '(define 2 x) '(x 1))
 ; ((;ERROR: define: bad variable (define 2 x)) (x 1))
-(defn evaluar-define
+(defn evaluar-define []
   "Evalua una expresion `define`. Devuelve una lista con el resultado y un ambiente actualizado con la definicion."
 )
 
@@ -981,7 +982,7 @@
 ; ((;ERROR: if: missing or extra expression (if)) (n 7))
 ; user=> (evaluar-if '(if 1) '(n 7))
 ; ((;ERROR: if: missing or extra expression (if 1)) (n 7))
-(defn evaluar-if
+(defn evaluar-if []
   "Evalua una expresion `if`. Devuelve una lista con el resultado y un ambiente eventualmente modificado."
 )
 
@@ -995,7 +996,7 @@
 ; (5 (#f #f #t #t))
 ; user=> (evaluar-or (list 'or (symbol "#f")) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")))
 ; (#f (#f #f #t #t))
-(defn evaluar-or
+(defn evaluar-or []
   "Evalua una expresion `or`.  Devuelve una lista con el resultado y un ambiente."
 )
 
@@ -1009,7 +1010,7 @@
 ; ((;ERROR: set!: missing or extra expression (set! x 1 2)) (x 0))
 ; user=> (evaluar-set! '(set! 1 2) '(x 0))
 ; ((;ERROR: set!: bad variable 1) (x 0))
-(defn evaluar-set!
+(defn evaluar-set! []
   "Evalua una expresion `set!`. Devuelve una lista con el resultado y un ambiente actualizado con la redefinicion."
 )
 

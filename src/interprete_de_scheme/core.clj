@@ -1,7 +1,11 @@
 (ns interprete-de-scheme.core
-  (:gen-class))
+  (:gen-class)
+  (:require [interprete-de-scheme.scheme :refer [repl]])
+  )
+
 
 (defn -main
-  "I don't do a whole lot ... yet."
+  "Funcion principal del interprete de scheme"
   [& args]
-  (println "Hello, World!"))
+  (repl)
+  )
