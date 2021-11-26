@@ -123,19 +123,18 @@
         (not (seq? expre))             (evaluar-escalar expre amb)
 
         (igual? (first expre) 'define) (evaluar-define expre amb)
-
-         ;
-         ;
-         ;
-         ; Si la expresion no es la aplicacion de una funcion (es una forma especial, una macro...) debe ser evaluada
-         ; por una funcion de Clojure especifica debido a que puede ser necesario evitar la evaluacion de los argumentos
-         ;
-         ;
-         ;
-
-	    	  :else (let [res-eval-1 (evaluar (first expre) amb),
-             						 res-eval-2 (reduce (fn [x y] (let [res-eval-3 (evaluar y (first x))] (cons (second res-eval-3) (concat (next x) (list (first res-eval-3)))))) (cons (list (second res-eval-1)) (next expre)))]
-					              	(aplicar (first res-eval-1) (next res-eval-2) (first res-eval-2))))))
+        (igual? (first expre) 'cond) (evaluar-cond expre amb)
+        (igual? (first expre) 'eval) (evaluar-eval expre amb)
+        (igual? (first expre) 'exit) (evaluar-exit expre amb)
+        (igual? (first expre) 'if) (evaluar-if expre amb)
+        (igual? (first expre) 'lambda) (evaluar-lambda expre amb)
+        (igual? (first expre) 'or) (evaluar-or expre amb)
+        (igual? (first expre) 'quote) (evaluar-quote expre amb)
+        (igual? (first expre) 'load) (evaluar-load expre amb)
+        (igual? (first expre) 'set!) (evaluar-set! expre amb)
+        :else (let [res-eval-1 (evaluar (first expre) amb),
+                    res-eval-2 (reduce (fn [x y] (let [res-eval-3 (evaluar y (first x))] (cons (second res-eval-3) (concat (next x) (list (first res-eval-3)))))) (cons (list (second res-eval-1)) (next expre)))]
+                    (aplicar (first res-eval-1) (next res-eval-2) (first res-eval-2))))))
 
 
 (defn aplicar
@@ -189,29 +188,19 @@
     (igual? fnc 'append) (fnc-append lae)
     (igual? fnc 'car) (fnc-car lae)
     (igual? fnc 'cdr) (fnc-cdr lae)
-    (igual? fnc 'cond) (evaluar-cond lae amb)
     (igual? fnc 'cons) (fnc-cons lae)
-    (igual? fnc 'define) (evaluar-define lae amb)
     (igual? fnc 'display) (fnc-display lae)
     (igual? fnc 'env) (fnc-env lae amb)
     (igual? fnc 'equal?) (fnc-equal? lae)
-    (igual? fnc 'eval) (evaluar-eval lae amb)
-    (igual? fnc 'exit) (evaluar-exit lae amb)
-    (igual? fnc 'if) (evaluar-if lae amb)
-    (igual? fnc 'lambda) (evaluar-lambda lae amb)
     (igual? fnc 'length) (fnc-length lae)
     (igual? fnc 'list) (fnc-list lae)
     (igual? fnc 'list?) (fnc-list? lae)
-    (igual? fnc 'load) (evaluar-load lae amb)
     (igual? fnc 'newline) (fnc-newline lae)
     (igual? fnc 'nil) (symbol "#f")
     (igual? fnc 'not) (fnc-not lae)
     (igual? fnc 'null?) (fnc-null? lae)
-    (igual? fnc 'or) (evaluar-or lae amb)
-    (igual? fnc 'quote) (evaluar-quote lae amb)
     (igual? fnc 'read) (fnc-read)
     (igual? fnc 'reverse) (fnc-reverse lae)
-    (igual? fnc 'set!) (evaluar-set! lae amb)
 
     :else (generar-mensaje-error :wrong-type-apply fnc)))
 
