@@ -1057,6 +1057,16 @@
 ; ((;ERROR: if: missing or extra expression (if 1)) (n 7))
 (defn evaluar-if [expresion ambiente]
   "Evalua una expresion `if`. Devuelve una lista con el resultado y un ambiente eventualmente modificado."
+  (let [condicion (second expresion),
+        caso-verdadero (nth expresion 2 (symbol "#<unspecified>")),
+        caso-falso (nth expresion 3 (symbol "#<unspecified>")),]
+    (cond
+        (< (count expresion) 3) (list (list (symbol ";ERROR:") (symbol  (str "if:")) 'Missing 'or 'extra 'expression expresion) ambiente)
+        (or (not (symbol? condicion) ) (= (symbol "#t") condicion) (= (symbol "#T") condicion) ) (evaluar caso-verdadero ambiente)
+        (= (symbol "#<unspecified>") caso-falso) (list caso-falso ambiente)
+        :else (evaluar caso-falso ambiente)
+      )
+    )
   )
 
 (defn evaluar-valor-verdad-or [primero segundo]
