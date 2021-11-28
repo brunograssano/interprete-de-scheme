@@ -272,3 +272,21 @@
     (is (= (list (list (symbol ";ERROR:") (symbol "unbound") (symbol "variable:") 'c) '()) (evaluar-escalar 'c '())))
     )
   )
+
+(deftest evaluar-define-test
+  (testing "Casos correctos"
+    (is (= (list (symbol "#<unspecified>") '(x 2)) (evaluar-define '(define x 2) '(x 1))))
+    (is (= (list (symbol "#<unspecified>") '(x 1 f (lambda (x) (+ x 1)))) (evaluar-define '(define (f x) (+ x 1)) '(x 1))))
+    (is (= (list (symbol "#<unspecified>") '(x 1 f (lambda (x y) (+ x y)))) (evaluar-define '(define (f x y) (+ x y)) '(x 1))))
+    )
+  (testing "Error de faltante o extra en expresion"
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'Missing 'or 'extra 'expression '(define)) '(x 1)) (evaluar-define '(define) '(x 1))))
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'Missing 'or 'extra 'expression '(define x)) '(x 1)) (evaluar-define '(define x) '(x 1))))
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'Missing 'or 'extra 'expression '(define x 2 3)) '(x 1)) (evaluar-define '(define x 2 3) '(x 1))))
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'Missing 'or 'extra 'expression '(define ())) '(x 1)) (evaluar-define '(define ()) '(x 1))))
+    )
+  (testing "Error de bad variable"
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'bad 'variable '(define () 2)) '(x 1)) (evaluar-define '(define () 2) '(x 1))))
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'bad 'variable '(define 2 x)) '(x 1)) (evaluar-define '(define 2 x) '(x 1))))
+    )
+  )
