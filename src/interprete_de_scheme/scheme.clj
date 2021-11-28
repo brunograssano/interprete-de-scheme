@@ -1062,7 +1062,7 @@
         caso-falso (nth expresion 3 (symbol "#<unspecified>")),]
     (cond
         (< (count expresion) 3) (list (list (symbol ";ERROR:") (symbol  (str "if:")) 'Missing 'or 'extra 'expression expresion) ambiente)
-        (or (not (symbol? condicion) ) (= (symbol "#t") condicion) (= (symbol "#T") condicion) ) (evaluar caso-verdadero ambiente)
+        (or (not (symbol? condicion) ) (igual? (symbol "#t") condicion) ) (evaluar caso-verdadero ambiente)
         (= (symbol "#<unspecified>") caso-falso) (list caso-falso ambiente)
         :else (evaluar caso-falso ambiente)
       )

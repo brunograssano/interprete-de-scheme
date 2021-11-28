@@ -61,6 +61,10 @@
   (testing "Se remplazan valores del ambiente"
     (is (= '(a 2) (actualizar-amb '(a 1) 'a 2)))
     (is (= '(a 2 b 4 c 5 d 6) (actualizar-amb '(a 2 b 4 c 1 d 6) 'c 5)))
+    (is (= '(a 2 b 4 C 5 d 6) (actualizar-amb '(a 2 b 4 C 1 d 6) 'c 5)))
+    (is (= '(A 2 b 5 c 1 d 6) (actualizar-amb '(A 2 b 4 c 1 d 6) 'B 5)))
+    (is (= '(A 59 B 4 C 1 D 6) (actualizar-amb '(A 2 B 4 C 1 D 6) 'a 59)))
+    (is (= '(A 59 B 4 C 1 D 6) (actualizar-amb '(A 2 B 4 C 1 D 6) 'A 59)))
     (is (= '(+ + - - * * f +) (actualizar-amb '(+ + - - * * f /) 'f '+)))
     )
   )
