@@ -290,3 +290,25 @@
     (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'bad 'variable '(define 2 x)) '(x 1)) (evaluar-define '(define 2 x) '(x 1))))
     )
   )
+
+(deftest evaluar-set!-test
+  (testing "Casos correctos"
+    (is (= (list (symbol "#<unspecified>") '(x 1)) (evaluar-set! '(set! x 1) '(x 0))))
+    (is (= (list (symbol "#<unspecified>") '(x 0 y 3 z 3)) (evaluar-set! '(set! y 3) '(x 0 y 1 z 3))))
+    )
+  (testing "Error de faltante o extra en expresion"
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "set!:")) 'Missing 'or 'extra 'expression '(set!)) '(x 1))
+           (evaluar-set! '(set!) '(x 1))))
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "set!:")) 'Missing 'or 'extra 'expression '(set! x)) '(x 1))
+           (evaluar-set! '(set! x) '(x 1))))
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "set!:")) 'Missing 'or 'extra 'expression '(set! x 2 3)) '(x 1))
+           (evaluar-set! '(set! x 2 3) '(x 1))))
+    )
+  (testing "Error de unbound variable"
+    (is (= (list (list (symbol ";ERROR:") 'unbound (symbol "variable:") 'y) '(x 1)) (evaluar-set! '(set! y 2) '(x 1))))
+    (is (= (list (list (symbol ";ERROR:") 'unbound (symbol "variable:") 'y) '(x 1 z 5)) (evaluar-set! '(set! y 3) '(x 1 z 5))))
+    )
+  (testing "Error de bad variable"
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "set!:")) 'bad 'variable 1) '(x 0)) (evaluar-set! '(set! 1 2) '(x 0))))
+    )
+  )

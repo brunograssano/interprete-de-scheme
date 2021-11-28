@@ -650,7 +650,7 @@
    y devuelve el valor asociado. Devuelve un error :unbound-variable si no la encuentra."
   (let [posicion (posicion-en-ambiente? ambiente clave)]
     (if (neg? posicion)
-      (list (symbol ";ERROR:") (symbol "unbound") (symbol "variable:") clave)
+      (list (symbol ";ERROR:") 'unbound (symbol "variable:") clave)
       (nth ambiente (inc posicion))
       )
     )
@@ -1011,81 +1011,93 @@
   (list (symbol "#<unspecified>") (actualizar-amb ambiente (first expresion) (last expresion)))
   )
 
-  ; user=> (evaluar-define '(define x 2) '(x 1))
-  ; (#<unspecified> (x 2))
-  ; user=> (evaluar-define '(define (f x) (+ x 1)) '(x 1))
-  ; (#<unspecified> (x 1 f (lambda (x) (+ x 1))))
-  ; user=> (evaluar-define '(define) '(x 1))
-  ; ((;ERROR: define: missing or extra expression (define)) (x 1))
-  ; user=> (evaluar-define '(define x) '(x 1))
-  ; ((;ERROR: define: missing or extra expression (define x)) (x 1))
-  ; user=> (evaluar-define '(define x 2 3) '(x 1))
-  ; ((;ERROR: define: missing or extra expression (define x 2 3)) (x 1))
-  ; user=> (evaluar-define '(define ()) '(x 1))
-  ; ((;ERROR: define: missing or extra expression (define ())) (x 1))
-  ; user=> (evaluar-define '(define () 2) '(x 1))
-  ; ((;ERROR: define: bad variable (define () 2)) (x 1))
-  ; user=> (evaluar-define '(define 2 x) '(x 1))
-  ; ((;ERROR: define: bad variable (define 2 x)) (x 1))
-  (defn evaluar-define [expresion ambiente]
-    "Evalua una expresion `define`. Devuelve una lista con el resultado y un ambiente actualizado con la definicion."
-    (let [nombre-expresion (second expresion)]
-      (cond
-      (not (= 3 (count expresion))) (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'Missing 'or 'extra 'expression expresion) ambiente)
-      (symbol? nombre-expresion) (devolver-ambiente (rest expresion) ambiente)
-      (not (list? nombre-expresion)) (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'bad 'variable expresion) ambiente)
-      (empty? nombre-expresion) (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'bad 'variable expresion) ambiente)
-      :else (devolver-ambiente (crear-lambda (rest expresion)) ambiente)
-      ))
-    )
+; user=> (evaluar-define '(define x 2) '(x 1))
+; (#<unspecified> (x 2))
+; user=> (evaluar-define '(define (f x) (+ x 1)) '(x 1))
+; (#<unspecified> (x 1 f (lambda (x) (+ x 1))))
+; user=> (evaluar-define '(define) '(x 1))
+; ((;ERROR: define: missing or extra expression (define)) (x 1))
+; user=> (evaluar-define '(define x) '(x 1))
+; ((;ERROR: define: missing or extra expression (define x)) (x 1))
+; user=> (evaluar-define '(define x 2 3) '(x 1))
+; ((;ERROR: define: missing or extra expression (define x 2 3)) (x 1))
+; user=> (evaluar-define '(define ()) '(x 1))
+; ((;ERROR: define: missing or extra expression (define ())) (x 1))
+; user=> (evaluar-define '(define () 2) '(x 1))
+; ((;ERROR: define: bad variable (define () 2)) (x 1))
+; user=> (evaluar-define '(define 2 x) '(x 1))
+; ((;ERROR: define: bad variable (define 2 x)) (x 1))
+(defn evaluar-define [expresion ambiente]
+  "Evalua una expresion `define`. Devuelve una lista con el resultado y un ambiente actualizado con la definicion."
+  (let [nombre-expresion (second expresion)]
+    (cond
+    (not (= 3 (count expresion))) (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'Missing 'or 'extra 'expression expresion) ambiente)
+    (symbol? nombre-expresion) (devolver-ambiente (rest expresion) ambiente)
+    (not (list? nombre-expresion)) (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'bad 'variable expresion) ambiente)
+    (empty? nombre-expresion) (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'bad 'variable expresion) ambiente)
+    :else (devolver-ambiente (crear-lambda (rest expresion)) ambiente)
+    ))
+  )
 
-  ; user=> (evaluar-if '(if 1 2) '(n 7))
-  ; (2 (n 7))
-  ; user=> (evaluar-if '(if 1 n) '(n 7))
-  ; (7 (n 7))
-  ; user=> (evaluar-if '(if 1 n 8) '(n 7))
-  ; (7 (n 7))
-  ; user=> (evaluar-if (list 'if (symbol "#f") 'n) (list 'n 7 (symbol "#f") (symbol "#f")))
-  ; (#<unspecified> (n 7 #f #f))
-  ; user=> (evaluar-if (list 'if (symbol "#f") 'n 8) (list 'n 7 (symbol "#f") (symbol "#f")))
-  ; (8 (n 7 #f #f))
-  ; user=> (evaluar-if (list 'if (symbol "#f") 'n '(set! n 9)) (list 'n 7 (symbol "#f") (symbol "#f")))
-  ; (#<unspecified> (n 9 #f #f))
-  ; user=> (evaluar-if '(if) '(n 7))
-  ; ((;ERROR: if: missing or extra expression (if)) (n 7))
-  ; user=> (evaluar-if '(if 1) '(n 7))
-  ; ((;ERROR: if: missing or extra expression (if 1)) (n 7))
-  (defn evaluar-if [expresion ambiente]
-    "Evalua una expresion `if`. Devuelve una lista con el resultado y un ambiente eventualmente modificado."
-    )
+; user=> (evaluar-if '(if 1 2) '(n 7))
+; (2 (n 7))
+; user=> (evaluar-if '(if 1 n) '(n 7))
+; (7 (n 7))
+; user=> (evaluar-if '(if 1 n 8) '(n 7))
+; (7 (n 7))
+; user=> (evaluar-if (list 'if (symbol "#f") 'n) (list 'n 7 (symbol "#f") (symbol "#f")))
+; (#<unspecified> (n 7 #f #f))
+; user=> (evaluar-if (list 'if (symbol "#f") 'n 8) (list 'n 7 (symbol "#f") (symbol "#f")))
+; (8 (n 7 #f #f))
+; user=> (evaluar-if (list 'if (symbol "#f") 'n '(set! n 9)) (list 'n 7 (symbol "#f") (symbol "#f")))
+; (#<unspecified> (n 9 #f #f))
+; user=> (evaluar-if '(if) '(n 7))
+; ((;ERROR: if: missing or extra expression (if)) (n 7))
+; user=> (evaluar-if '(if 1) '(n 7))
+; ((;ERROR: if: missing or extra expression (if 1)) (n 7))
+(defn evaluar-if [expresion ambiente]
+  "Evalua una expresion `if`. Devuelve una lista con el resultado y un ambiente eventualmente modificado."
+  )
 
-  ; user=> (evaluar-or (list 'or) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")))
-  ; (#f (#f #f #t #t))
-  ; user=> (evaluar-or (list 'or (symbol "#t")) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")))
-  ; (#t (#f #f #t #t))
-  ; user=> (evaluar-or (list 'or 7) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")))
-  ; (7 (#f #f #t #t))
-  ; user=> (evaluar-or (list 'or (symbol "#f") 5) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")))
-  ; (5 (#f #f #t #t))
-  ; user=> (evaluar-or (list 'or (symbol "#f")) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")))
-  ; (#f (#f #f #t #t))
-  (defn evaluar-or [expresion ambiente]
-    "Evalua una expresion `or`.  Devuelve una lista con el resultado y un ambiente."
-    )
+; user=> (evaluar-or (list 'or) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")))
+; (#f (#f #f #t #t))
+; user=> (evaluar-or (list 'or (symbol "#t")) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")))
+; (#t (#f #f #t #t))
+; user=> (evaluar-or (list 'or 7) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")))
+; (7 (#f #f #t #t))
+; user=> (evaluar-or (list 'or (symbol "#f") 5) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")))
+; (5 (#f #f #t #t))
+; user=> (evaluar-or (list 'or (symbol "#f")) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")))
+; (#f (#f #f #t #t))
+(defn evaluar-or [expresion ambiente]
+  "Evalua una expresion `or`.  Devuelve una lista con el resultado y un ambiente."
+  )
 
-  ; user=> (evaluar-set! '(set! x 1) '(x 0))
-  ; (#<unspecified> (x 1))
-  ; user=> (evaluar-set! '(set! x 1) '())
-  ; ((;ERROR: unbound variable: x) ())
-  ; user=> (evaluar-set! '(set! x) '(x 0))
-  ; ((;ERROR: set!: missing or extra expression (set! x)) (x 0))
-  ; user=> (evaluar-set! '(set! x 1 2) '(x 0))
-  ; ((;ERROR: set!: missing or extra expression (set! x 1 2)) (x 0))
-  ; user=> (evaluar-set! '(set! 1 2) '(x 0))
-  ; ((;ERROR: set!: bad variable 1) (x 0))
-  (defn evaluar-set! [expresion ambiente]
-    "Evalua una expresion `set!`. Devuelve una lista con el resultado y un ambiente actualizado con la redefinicion."
+; user=> (evaluar-set! '(set! x 1) '(x 0))
+; (#<unspecified> (x 1))
+; user=> (evaluar-set! '(set! x 1) '())
+; ((;ERROR: unbound variable: x) ())
+; user=> (evaluar-set! '(set! x) '(x 0))
+; ((;ERROR: set!: missing or extra expression (set! x)) (x 0))
+; user=> (evaluar-set! '(set! x 1 2) '(x 0))
+; ((;ERROR: set!: missing or extra expression (set! x 1 2)) (x 0))
+; user=> (evaluar-set! '(set! 1 2) '(x 0))
+; ((;ERROR: set!: bad variable 1) (x 0))
+(defn evaluar-set! [expresion ambiente]
+  "Evalua una expresion `set!`. Devuelve una lista con el resultado y un ambiente actualizado con la redefinicion."
+  (let [clave (second expresion), valor (last expresion)]
+    (cond
+      (not (= 3 (count expresion))) (list (list (symbol ";ERROR:") (symbol  (str "set!:")) 'Missing 'or 'extra 'expression expresion) ambiente)
+      (not (symbol? clave))(list (list (symbol ";ERROR:") (symbol  (str "set!:")) 'bad 'variable clave) ambiente)
+      :else (let [resultado (buscar clave ambiente)]
+              (if (error? resultado)
+                (list resultado ambiente)
+                (list (symbol "#<unspecified>") (actualizar-amb ambiente clave valor))
+                )
+              )
+      )
     )
+  )
 
 
 ; Al terminar de cargar el archivo en el REPL de Clojure, se debe devolver true.
