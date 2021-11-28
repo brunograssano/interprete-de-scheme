@@ -316,25 +316,49 @@
 
 (deftest evaluar-or-test
   (testing "Solo falsos"
-    (is (= (list (symbol "#f") (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")) )  (evaluar-or (list 'or) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t"))) ))
-    (is (= (list (symbol "#f") (list (symbol "#f")) )  (evaluar-or (list 'or (symbol "#f")) (list (symbol "#f"))) ))
-    (is (= (list (symbol "#f") (list (symbol "#t")) )  (evaluar-or (list 'or (symbol "#f")) (list (symbol "#t"))) ))
+    (is (= (list (symbol "#f") (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")) )
+           (evaluar-or (list 'or) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t"))) ))
+    (is (= (list (symbol "#f") (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")) )
+           (evaluar-or (list 'or (symbol "#f")) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t"))) ))
+    (is (= (list (symbol "#f") (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")) )
+           (evaluar-or (list 'or (symbol "#f")) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t"))) ))
     )
   (testing "Solo verdaderos"
-    (is (= (list (symbol "#t") (list (symbol "#t")) )  (evaluar-or (list 'or (symbol "#t")) (list (symbol "#t"))) ))
-    (is (= (list (symbol "#t") (list (symbol "#f")) )  (evaluar-or (list 'or (symbol "#t")) (list (symbol "#f"))) ))
-    (is (= (list (symbol "#t") (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")) )  (evaluar-or (list 'or (symbol "#t") (symbol "#t") (symbol "#t")) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t"))) ))
+    (is (= (list (symbol "#t") (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")) )
+           (evaluar-or (list 'or (symbol "#t")) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t"))) ))
+
+    (is (= (list (symbol "#t") (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")) )
+           (evaluar-or (list 'or (symbol "#t")) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t"))) ))
+
+    (is (= (list (symbol "#t") (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")) )
+           (evaluar-or (list 'or (symbol "#t") (symbol "#t") (symbol "#t")) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t"))) ))
+
     )
   (testing "Combinados valores de verdad"
-    (is (= (list (symbol "#t") (list (symbol "#t")) )  (evaluar-or (list 'or (symbol "#t") (symbol "#f")) (list (symbol "#t"))) ))
-    (is (= (list (symbol "#t") (list (symbol "#t")) )  (evaluar-or (list 'or (symbol "#f") (symbol "#t")) (list (symbol "#t"))) ))
-    (is (= (list (symbol "#t") (list (symbol "#t")) )  (evaluar-or (list 'or (symbol "#f") (symbol "#t") (symbol "#f")) (list (symbol "#t"))) ))
-    (= (list (symbol "#t") (list (symbol "#t")) )  (evaluar-or (list 'or (symbol "#f") (symbol "#f") (symbol "#t")) (list (symbol "#t"))) )
+    (is (= (list (symbol "#t") (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")) )
+           (evaluar-or (list 'or (symbol "#t") (symbol "#f")) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t"))) ))
+
+    (is (= (list (symbol "#t") (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")) )
+           (evaluar-or (list 'or (symbol "#f") (symbol "#t")) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t"))) ))
+
+    (is (= (list (symbol "#t") (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")) )
+           (evaluar-or (list 'or (symbol "#f") (symbol "#t") (symbol "#f")) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t"))) ))
+
+    (is (= (list (symbol "#t") (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")) )
+       (evaluar-or (list 'or (symbol "#f") (symbol "#f") (symbol "#t")) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t"))) ))
+
+    (is (= (list true (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t") '< '<) )
+           (evaluar-or (list 'or (symbol "#f") (< 1 2)) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t") '< '<)) ))
     )
   (testing "Mezclados con numeros"
-    (is (= (list (symbol "#t") (list (symbol "#t")) )  (evaluar-or (list 'or (symbol "#t") 3) (list (symbol "#t"))) ))
-    (is (= (list 2 (list (symbol "#t")) )  (evaluar-or (list 'or (symbol "#f") 2) (list (symbol "#t"))) ))
-    (is (= (list 5 (list (symbol "#t")) )  (evaluar-or (list 'or 5 (symbol "#t") (symbol "#f")) (list (symbol "#t"))) ))
+    (is (= (list (symbol "#t") (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")) )
+           (evaluar-or (list 'or (symbol "#t") 3) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t"))) ))
+
+    (is (= (list 2 (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")) )
+           (evaluar-or (list 'or (symbol "#f") 2) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t"))) ))
+
+    (is (= (list 5 (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")) )
+           (evaluar-or (list 'or 5 (symbol "#t") (symbol "#f")) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t"))) ))
     )
   )
 

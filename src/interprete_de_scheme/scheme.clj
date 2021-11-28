@@ -603,7 +603,7 @@
 
 (defn es-elemento-en-coleccion [buscado salto posicion elemento-actual]
   (cond
-    (zero? (mod posicion salto)) (if (= buscado elemento-actual) (reduced posicion) (inc posicion))
+    (zero? (mod posicion salto)) (if (igual? buscado elemento-actual) (reduced posicion) (inc posicion))
     :else (inc posicion)
     )
   )
@@ -1069,13 +1069,13 @@
     )
   )
 
-(defn evaluar-valor-verdad-or [primero segundo]
+(defn evaluar-valor-verdad-or [ambiente expresion]
   "Evalua dos valores de verdad de Scheme (#t o #f) siguiendo las reglas logicas de un OR.
   Si no es (#t o #f) devuelve lo encontrado"
   (cond
-    (not (symbol? segundo)) (reduced segundo)
-    (or (= (symbol "#t") segundo) (= (symbol "#T") segundo)) (reduced segundo)
-    :else segundo
+    (not (symbol? expresion)) (reduced expresion)
+    (igual? (symbol "#t") (first (evaluar expresion ambiente))) (reduced (symbol "#t"))
+    :else ambiente
     )
   )
 
@@ -1093,7 +1093,12 @@
   "Evalua una expresion `or`.  Devuelve una lista con el resultado y un ambiente."
   (cond
     (= 1 (count expresion)) (list (symbol "#f") ambiente)
-    :else (list (reduce evaluar-valor-verdad-or (symbol "#f") (rest expresion)) ambiente)
+    :else (let [resultado (reduce evaluar-valor-verdad-or ambiente (rest expresion))]
+            (if (= ambiente resultado)
+              (list (symbol "#f") ambiente)
+              (list resultado ambiente)
+              )
+            )
     )
   )
 
