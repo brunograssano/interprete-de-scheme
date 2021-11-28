@@ -365,3 +365,11 @@
            (evaluar-if (list 'if (symbol "#f") 2 (+ 1 3)) '(+ +))))
     )
   )
+
+(deftest leer-entrada-test
+  (testing "Lectura de entrada"
+    (is (= "Hola" (with-in-str "Hola" (leer-entrada))))
+    (is (= "(Hola mundo)" (with-in-str "(Hola\nmundo)" (leer-entrada))))
+    (is (= "( prueba( con( varios niveles) ))" (with-in-str "(\nprueba(\ncon(\nvarios\nniveles)\n))" (leer-entrada))))
+    )
+  )
