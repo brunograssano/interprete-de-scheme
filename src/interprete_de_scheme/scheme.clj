@@ -996,25 +996,36 @@
     )
 )
 
-  ; user=> (evaluar-define '(define x 2) '(x 1))
+(defn devolver-ambiente [expresion ambiente]
+  (list (symbol "#<unspecified>") (actualizar-amb ambiente (second expresion) (last expresion)))
+  )
+
+  ; user=> (evaluar-define '(define x 2) '(x 1)) <---
   ; (#<unspecified> (x 2))
   ; user=> (evaluar-define '(define (f x) (+ x 1)) '(x 1))
   ; (#<unspecified> (x 1 f (lambda (x) (+ x 1))))
   ; user=> (evaluar-define '(define) '(x 1))
-  ; ((;ERROR: define: missing or extra expression (define)) (x 1))
+  ; ((;ERROR: define: missing or extra expression (define)) (x 1)) <---
   ; user=> (evaluar-define '(define x) '(x 1))
-  ; ((;ERROR: define: missing or extra expression (define x)) (x 1))
+  ; ((;ERROR: define: missing or extra expression (define x)) (x 1)) <---
   ; user=> (evaluar-define '(define x 2 3) '(x 1))
-  ; ((;ERROR: define: missing or extra expression (define x 2 3)) (x 1))
+  ; ((;ERROR: define: missing or extra expression (define x 2 3)) (x 1)) <---
   ; user=> (evaluar-define '(define ()) '(x 1))
-  ; ((;ERROR: define: missing or extra expression (define ())) (x 1))
+  ; ((;ERROR: define: missing or extra expression (define ())) (x 1)) <---
   ; user=> (evaluar-define '(define () 2) '(x 1))
   ; ((;ERROR: define: bad variable (define () 2)) (x 1))
-  ; user=> (evaluar-define '(define 2 x) '(x 1))
+  ; user=> (evaluar-define '(define 2 x) '(x 1)) <----
   ; ((;ERROR: define: bad variable (define 2 x)) (x 1))
-  (defn evaluar-define [expresion ambiente]
+  (defn evaluar-define [expresion ambiente]                 ; TODO tests
     "Evalua una expresion `define`. Devuelve una lista con el resultado y un ambiente actualizado con la definicion."
-
+    (let [nombre-expresion (second expresion)]
+      (cond
+      (not (= 3 (count expresion))) (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'Missing 'or 'extra 'expression expresion) ambiente)
+      (symbol? nombre-expresion) (devolver-ambiente expresion ambiente)
+      (not (list? nombre-expresion)) (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'bad 'variable expresion) ambiente)
+      (empty? nombre-expresion) (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'bad 'variable expresion) ambiente)
+      :else (devolver-ambiente expresion ambiente)          ;todo generar lambda
+      ))
     )
 
   ; user=> (evaluar-if '(if 1 2) '(n 7))
