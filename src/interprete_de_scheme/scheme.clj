@@ -1059,6 +1059,16 @@
   "Evalua una expresion `if`. Devuelve una lista con el resultado y un ambiente eventualmente modificado."
   )
 
+(defn evaluar-valor-verdad-or [primero segundo]
+  "Evalua dos valores de verdad de Scheme (#t o #f) siguiendo las reglas logicas de un OR.
+  Si no es (#t o #f) devuelve lo encontrado"
+  (cond
+    (not (symbol? segundo)) (reduced segundo)
+    (or (= (symbol "#t") segundo) (= (symbol "#T") segundo)) (reduced segundo)
+    :else segundo
+    )
+  )
+
 ; user=> (evaluar-or (list 'or) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")))
 ; (#f (#f #f #t #t))
 ; user=> (evaluar-or (list 'or (symbol "#t")) (list (symbol "#f") (symbol "#f") (symbol "#t") (symbol "#t")))
@@ -1071,6 +1081,10 @@
 ; (#f (#f #f #t #t))
 (defn evaluar-or [expresion ambiente]
   "Evalua una expresion `or`.  Devuelve una lista con el resultado y un ambiente."
+  (cond
+    (= 1 (count expresion)) (list (symbol "#f") ambiente)
+    :else (list (reduce evaluar-valor-verdad-or (symbol "#f") (rest expresion)) ambiente)
+    )
   )
 
 ; user=> (evaluar-set! '(set! x 1) '(x 0))
