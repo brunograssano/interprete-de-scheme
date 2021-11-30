@@ -875,6 +875,20 @@
     )
   )
 
+(defn evaluar-orden-en-secuencia [lista orden-a-usar representacion-orden]
+  (cond
+    (zero? (count lista)) (symbol "#t")
+    (not (number? (first lista))) (list (symbol ";ERROR:") (symbol  (str representacion-orden ":")) 'Wrong 'type 'in 'arg1 (first lista))
+    (= 1 (count lista)) (symbol "#t")
+    :else (let [resultado (reduce (partial esta-ordenada? orden-a-usar representacion-orden) lista)]
+            (if (number? resultado)
+              (symbol "#t")
+              resultado)
+            )
+    )
+  )
+
+
 ; user=> (fnc-menor ())
 ; #t
 ; user=> (fnc-menor '(1))
@@ -897,16 +911,7 @@
 ; (;ERROR: <: Wrong type in arg2 A)
 (defn fnc-menor [lista]
   "Devuelve #t si los numeros de una lista estan en orden estrictamente creciente; si no, #f."
-  (cond
-    (zero? (count lista)) (symbol "#t")
-    (not (number? (first lista))) (list (symbol ";ERROR:") (symbol  (str "<:")) 'Wrong 'type 'in 'arg1 (first lista))
-    (= 1 (count lista)) (symbol "#t")
-    :else (let [resultado (reduce (partial esta-ordenada? < "<") lista)]
-            (if (number? resultado)
-              (symbol "#t")
-              resultado)
-            )
-    )
+  (evaluar-orden-en-secuencia lista < "<")
 )
 
 ; user=> (fnc-mayor ())
@@ -931,16 +936,7 @@
 ; (;ERROR: >: Wrong type in arg2 A)
 (defn fnc-mayor [lista]
   "Devuelve #t si los numeros de una lista estan en orden estrictamente decreciente; si no, #f."
-  (cond
-    (zero? (count lista)) (symbol "#t")
-    (not (number? (first lista))) (list (symbol ";ERROR:") (symbol  (str ">:")) 'Wrong 'type 'in 'arg1 (first lista))
-    (= 1 (count lista)) (symbol "#t")
-    :else (let [resultado (reduce (partial esta-ordenada? > ">") lista)]
-            (if (number? resultado)
-              (symbol "#t")
-              resultado)
-            )
-    )
+  (evaluar-orden-en-secuencia lista > ">")
 )
 
 ; user=> (fnc-mayor-o-igual ())
@@ -963,18 +959,9 @@
 ; (;ERROR: >=: Wrong type in arg2 A)
 ; user=> (fnc-mayor-o-igual '(3 2 A 1))
 ; (;ERROR: >=: Wrong type in arg2 A)
-(defn fnc-mayor-o-igual [lista]                             ; TODO refactorizar a una funcion generica - patron Template Method
+(defn fnc-mayor-o-igual [lista]
   "Devuelve #t si los numeros de una lista estan en orden decreciente; si no, #f."
-  (cond
-    (zero? (count lista)) (symbol "#t")
-    (not (number? (first lista))) (list (symbol ";ERROR:") (symbol  (str ">=:")) 'Wrong 'type 'in 'arg1 (first lista))
-    (= 1 (count lista)) (symbol "#t")
-    :else (let [resultado (reduce (partial esta-ordenada? >= ">=") lista)]
-            (if (number? resultado)
-              (symbol "#t")
-              resultado)
-            )
-    )
+  (evaluar-orden-en-secuencia lista >= ">=")
 )
 
 ; user=> (evaluar-escalar 32 '(x 6 y 11 z "hola"))
