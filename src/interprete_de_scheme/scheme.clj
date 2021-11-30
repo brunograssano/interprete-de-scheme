@@ -670,7 +670,7 @@
 (defn error? [lista]
   "Devuelve true o false, segun sea o no el arg. una lista con `;ERROR:` o `;WARNING:` como primer elemento."
   (cond
-    (list? lista) (es-error-o-warning? (first lista))
+    (seq? lista) (es-error-o-warning? (first lista))
     :else false
     )
 )
@@ -687,17 +687,16 @@
 )
 
 (defn restaurar-secuencias [lista]
-  (if (list? lista)
-        (do
-          (apply list (replace
-            {(symbol "%f")(symbol "#f"),
-             (symbol "%F")(symbol "#F"),
-             (symbol "%t")(symbol "#t"),
-             (symbol "%T")(symbol "#T")}
-            (vec (map restaurar-secuencias lista))
-            )
+  (if (seq? lista)
+        (apply list
+               (replace
+                  {(symbol "%f")(symbol "#f"),
+                   (symbol "%F")(symbol "#F"),
+                   (symbol "%t")(symbol "#t"),
+                   (symbol "%T")(symbol "#T")}
+                  (vec (map restaurar-secuencias lista))
+                  )
            )
-          )
         lista
     )
   )
@@ -1033,7 +1032,7 @@
     (cond
     (not (= 3 (count expresion))) (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'Missing 'or 'extra 'expression expresion) ambiente)
     (symbol? nombre-expresion) (devolver-ambiente (rest expresion) ambiente)
-    (not (list? nombre-expresion)) (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'bad 'variable expresion) ambiente)
+    (not (seq? nombre-expresion)) (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'bad 'variable expresion) ambiente)
     (empty? nombre-expresion) (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'bad 'variable expresion) ambiente)
     :else (devolver-ambiente (crear-lambda (rest expresion)) ambiente)
     ))
