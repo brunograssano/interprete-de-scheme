@@ -77,8 +77,8 @@
     (is (= 7 (buscar 'd '(a 1 b 2 c 3 d 7 e 9))))
     )
   (testing "No se encuentra en el ambiente"
-    (is (= (list (symbol ";ERROR:") (symbol "unbound") (symbol "variable:") 'c) (buscar 'c '(a 1 b 2 d 4))))
-    (is (= (list (symbol ";ERROR:") (symbol "unbound") (symbol "variable:") 'c) (buscar 'c '())))
+    (is (= (list (symbol ";ERROR:") (symbol "unbound variable:") 'c) (buscar 'c '(a 1 b 2 d 4))))
+    (is (= (list (symbol ";ERROR:") (symbol "unbound variable:") 'c) (buscar 'c '())))
     )
   )
 
@@ -272,8 +272,8 @@
     (is (= '(7 (a 1 b 2 c 3 d 4 e 7)) (evaluar-escalar 'e '(a 1 b 2 c 3 d 4 e 7))))
     )
   (testing "No se encuentra en el ambiente"
-    (is (= (list (list (symbol ";ERROR:") (symbol "unbound") (symbol "variable:") 'c) '(a 1 b 2 d 4)) (evaluar-escalar 'c '(a 1 b 2 d 4))))
-    (is (= (list (list (symbol ";ERROR:") (symbol "unbound") (symbol "variable:") 'c) '()) (evaluar-escalar 'c '())))
+    (is (= (list (list (symbol ";ERROR:") (symbol "unbound variable:") 'c) '(a 1 b 2 d 4)) (evaluar-escalar 'c '(a 1 b 2 d 4))))
+    (is (= (list (list (symbol ";ERROR:") (symbol "unbound variable:") 'c) '()) (evaluar-escalar 'c '())))
     )
   )
 
@@ -284,10 +284,10 @@
     (is (= (list (symbol "#<unspecified>") '(x 1 f (lambda (x y) (+ x y)))) (evaluar-define '(define (f x y) (+ x y)) '(x 1))))
     )
   (testing "Error de faltante o extra en expresion"
-    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'Missing 'or 'extra 'expression '(define)) '(x 1)) (evaluar-define '(define) '(x 1))))
-    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'Missing 'or 'extra 'expression '(define x)) '(x 1)) (evaluar-define '(define x) '(x 1))))
-    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'Missing 'or 'extra 'expression '(define x 2 3)) '(x 1)) (evaluar-define '(define x 2 3) '(x 1))))
-    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'Missing 'or 'extra 'expression '(define ())) '(x 1)) (evaluar-define '(define ()) '(x 1))))
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'missing 'or 'extra 'expression '(define)) '(x 1)) (evaluar-define '(define) '(x 1))))
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'missing 'or 'extra 'expression '(define x)) '(x 1)) (evaluar-define '(define x) '(x 1))))
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'missing 'or 'extra 'expression '(define x 2 3)) '(x 1)) (evaluar-define '(define x 2 3) '(x 1))))
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'missing 'or 'extra 'expression '(define ())) '(x 1)) (evaluar-define '(define ()) '(x 1))))
     )
   (testing "Error de bad variable"
     (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'bad 'variable '(define () 2)) '(x 1)) (evaluar-define '(define () 2) '(x 1))))
@@ -301,16 +301,16 @@
     (is (= (list (symbol "#<unspecified>") '(x 0 y 3 z 3)) (evaluar-set! '(set! y 3) '(x 0 y 1 z 3))))
     )
   (testing "Error de faltante o extra en expresion"
-    (is (= (list (list (symbol ";ERROR:") (symbol  (str "set!:")) 'Missing 'or 'extra 'expression '(set!)) '(x 1))
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "set!:")) 'missing 'or 'extra 'expression '(set!)) '(x 1))
            (evaluar-set! '(set!) '(x 1))))
-    (is (= (list (list (symbol ";ERROR:") (symbol  (str "set!:")) 'Missing 'or 'extra 'expression '(set! x)) '(x 1))
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "set!:")) 'missing 'or 'extra 'expression '(set! x)) '(x 1))
            (evaluar-set! '(set! x) '(x 1))))
-    (is (= (list (list (symbol ";ERROR:") (symbol  (str "set!:")) 'Missing 'or 'extra 'expression '(set! x 2 3)) '(x 1))
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "set!:")) 'missing 'or 'extra 'expression '(set! x 2 3)) '(x 1))
            (evaluar-set! '(set! x 2 3) '(x 1))))
     )
   (testing "Error de unbound variable"
-    (is (= (list (list (symbol ";ERROR:") 'unbound (symbol "variable:") 'y) '(x 1)) (evaluar-set! '(set! y 2) '(x 1))))
-    (is (= (list (list (symbol ";ERROR:") 'unbound (symbol "variable:") 'y) '(x 1 z 5)) (evaluar-set! '(set! y 3) '(x 1 z 5))))
+    (is (= (list (list (symbol ";ERROR:") (symbol "unbound variable:") 'y) '(x 1)) (evaluar-set! '(set! y 2) '(x 1))))
+    (is (= (list (list (symbol ";ERROR:") (symbol "unbound variable:") 'y) '(x 1 z 5)) (evaluar-set! '(set! y 3) '(x 1 z 5))))
     )
   (testing "Error de bad variable"
     (is (= (list (list (symbol ";ERROR:") (symbol  (str "set!:")) 'bad 'variable 1) '(x 0)) (evaluar-set! '(set! 1 2) '(x 0))))

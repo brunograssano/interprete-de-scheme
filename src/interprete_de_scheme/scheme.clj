@@ -536,13 +536,15 @@
     			(case cod
      			 :bad-body (list 'bad 'body nom-arg)
      			 :bad-else-clause (list 'bad 'ELSE 'clause nom-arg)
-      			:bad-or-missing (list 'bad 'or 'missing 'clauses nom-arg)
+           :bad-or-missing (list 'bad 'or 'missing 'clauses nom-arg)
      			 :bad-params (list 'Parameters 'are 'implemented 'only 'as 'lists nom-arg)
-      			:bad-variable (list 'bad 'variable nom-arg)
+           :bad-variable (list 'bad 'variable nom-arg)
      			 :missing-or-extra (list 'missing 'or 'extra 'expression nom-arg)
      			 :wrong-type-arg (list 'Wrong 'type 'in 'arg nom-arg)
      			 :wrong-type-arg1 (list 'Wrong 'type 'in 'arg1 nom-arg)
      			 :wrong-type-arg2 (list 'Wrong 'type 'in 'arg2 nom-arg)
+           :unbound-variable (list nom-arg)
+           :append (list 'Wrong 'type 'in 'arg nom-arg)
          ())))))
 
 
@@ -650,7 +652,7 @@
    y devuelve el valor asociado. Devuelve un error :unbound-variable si no la encuentra."
   (let [posicion (posicion-en-ambiente? ambiente clave)]
     (if (neg? posicion)
-      (list (symbol ";ERROR:") 'unbound (symbol "variable:") clave)
+      (generar-mensaje-error :unbound-variable "unbound variable" clave)
       (nth ambiente (inc posicion))
       )
     )
@@ -739,7 +741,7 @@
 (defn fusionar-listas [lista elemento-actual]
   (if (list? elemento-actual)
     (concat lista elemento-actual)
-    (reduced (list (symbol ";ERROR:") (symbol "append:") 'Wrong 'type 'in 'arg elemento-actual))
+    (reduced (generar-mensaje-error :append "append" elemento-actual))
     )
   )
 
@@ -802,16 +804,16 @@
    (symbol (leer-entrada))
    )
   ([puerto]
-   (list (symbol ";ERROR:") (symbol "read:") 'Use 'of 'I/O 'ports 'not 'implemented)
+   (generar-mensaje-error :io-ports-not-implemented read)
    )
   ([puerto & more]
-   (list (symbol ";ERROR:") 'Wrong 'number 'of 'args 'given (symbol "#<primitive-procedure read>"))
+   (generar-mensaje-error :wrong-number-args-prim-proc "read")
    )
 )
 
 (defn operacion [accion accion-str acumulado numero]
   (cond
-    (not (number? numero)) (reduced (list (symbol ";ERROR:") (symbol (str accion-str ":")) 'Wrong 'type 'in 'arg2 numero))
+    (not (number? numero)) (reduced (generar-mensaje-error :wrong-type-arg2 accion-str numero))
     :else (accion acumulado numero)
     )
   )
@@ -836,7 +838,7 @@
   "Suma los elementos de una lista."
   (cond
     (zero? (count lista)) 0
-    (not (number? (first lista))) (list (symbol ";ERROR:") (symbol  (str "+:")) 'Wrong 'type 'in 'arg1 (first lista))
+    (not (number? (first lista))) (generar-mensaje-error :wrong-type-arg1 "+" (first lista))
     :else (reduce (partial operacion + "+") lista)
     )
 )
@@ -860,8 +862,8 @@
 (defn fnc-restar [lista]
   "Resta los elementos de un lista."
   (cond
-    (zero? (count lista))(list (symbol ";ERROR:") (symbol "-:") 'Wrong 'number 'of 'args 'given)
-    (not (number? (first lista))) (list (symbol ";ERROR:") (symbol  (str "-:")) 'Wrong 'type 'in 'arg1 (first lista))
+    (zero? (count lista))(generar-mensaje-error :wrong-number-args-oper "-")
+    (not (number? (first lista))) (generar-mensaje-error :wrong-type-arg1 "-" (first lista))
     (= 1 (count lista)) (- (first lista))
     :else (reduce (partial operacion - "-") lista)
     )
@@ -869,7 +871,7 @@
 
 (defn esta-ordenada? [orden orden-str primero segundo]
   (cond
-    (not (number? segundo)) (reduced (list (symbol ";ERROR:") (symbol (str orden-str ":")) 'Wrong 'type 'in 'arg2 segundo))
+    (not (number? segundo)) (reduced (generar-mensaje-error :wrong-type-arg2 orden-str segundo))
     (orden primero segundo) segundo
     :else (reduced (symbol "#f"))
     )
@@ -878,7 +880,7 @@
 (defn evaluar-orden-en-secuencia [lista orden-a-usar representacion-orden]
   (cond
     (zero? (count lista)) (symbol "#t")
-    (not (number? (first lista))) (list (symbol ";ERROR:") (symbol  (str representacion-orden ":")) 'Wrong 'type 'in 'arg1 (first lista))
+    (not (number? (first lista))) (generar-mensaje-error :wrong-type-arg1 representacion-orden (first lista))
     (= 1 (count lista)) (symbol "#t")
     :else (let [resultado (reduce (partial esta-ordenada? orden-a-usar representacion-orden) lista)]
             (if (number? resultado)
@@ -1017,10 +1019,10 @@
   "Evalua una expresion `define`. Devuelve una lista con el resultado y un ambiente actualizado con la definicion."
   (let [nombre-expresion (second expresion)]
     (cond
-    (not (= 3 (count expresion))) (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'Missing 'or 'extra 'expression expresion) ambiente)
+    (not (= 3 (count expresion))) (list (generar-mensaje-error :missing-or-extra "define" expresion) ambiente)
     (symbol? nombre-expresion) (devolver-ambiente (rest expresion) ambiente)
-    (not (seq? nombre-expresion)) (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'bad 'variable expresion) ambiente)
-    (empty? nombre-expresion) (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'bad 'variable expresion) ambiente)
+    (not (seq? nombre-expresion)) (list (generar-mensaje-error :bad-variable "define" expresion) ambiente)
+    (empty? nombre-expresion) (list (generar-mensaje-error :bad-variable "define" expresion) ambiente)
     :else (devolver-ambiente (crear-lambda (rest expresion)) ambiente)
     ))
   )
@@ -1047,7 +1049,7 @@
         caso-verdadero (nth expresion 2 (symbol "#<unspecified>")),
         caso-falso (nth expresion 3 (symbol "#<unspecified>")),]
     (cond
-        (< (count expresion) 3) (list (list (symbol ";ERROR:") (symbol  (str "if:")) 'Missing 'or 'extra 'expression expresion) ambiente)
+        (< (count expresion) 3) (list (generar-mensaje-error :missing-or-extra "if" expresion) ambiente)
         (or (not (symbol? condicion) ) (igual? (symbol "#t") condicion) ) (evaluar caso-verdadero ambiente)
         (= (symbol "#<unspecified>") caso-falso) (list caso-falso ambiente)
         :else (evaluar caso-falso ambiente)
@@ -1102,8 +1104,8 @@
   "Evalua una expresion `set!`. Devuelve una lista con el resultado y un ambiente actualizado con la redefinicion."
   (let [clave (second expresion), valor (last expresion)]
     (cond
-      (not (= 3 (count expresion))) (list (list (symbol ";ERROR:") (symbol  (str "set!:")) 'Missing 'or 'extra 'expression expresion) ambiente)
-      (not (symbol? clave))(list (list (symbol ";ERROR:") (symbol  (str "set!:")) 'bad 'variable clave) ambiente)
+      (not (= 3 (count expresion))) (list (generar-mensaje-error :missing-or-extra "set!" expresion) ambiente)
+      (not (symbol? clave))(list (generar-mensaje-error :bad-variable "set!" clave) ambiente)
       :else (let [resultado (buscar clave ambiente)]
               (if (error? resultado)
                 (list resultado ambiente)
