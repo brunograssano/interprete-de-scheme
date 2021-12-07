@@ -292,6 +292,8 @@
            (evaluar-define '(define (f x y) (+ x y)) '(x 1))))
     (is (= (list (symbol "#<unspecified>") '(x 1 f (lambda (x) (display x) (newline) (+ x 1))))
            (evaluar-define '(define (f x) (display x) (newline) (+ x 1)) '(x 1))))
+    (is (= (list (symbol "#<unspecified>") '(x x))
+           (evaluar-define '(define x 'x) '())))
     )
   (testing "Error de faltante o extra en expresion"
     (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'missing 'or 'extra 'expression '(define)) '(x 1))

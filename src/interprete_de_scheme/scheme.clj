@@ -613,7 +613,7 @@
 (defn posicion-en-ambiente? [ambiente clave]
   (let [buscar-pares (partial es-elemento-en-coleccion clave 2)]
     (let [resultado (reduce buscar-pares 0 ambiente)]
-      (if (< resultado (count ambiente))
+      (if (and (< resultado (count ambiente)) (not (empty? ambiente)))
         resultado
         -1
         )
@@ -997,6 +997,14 @@
   (list (symbol "#<unspecified>") (actualizar-amb ambiente (first expresion) (last expresion)))
   )
 
+
+(defn revisar-quote [nombre-expresion expresion]
+  (if (and (seq? (second expresion)) (igual? (first (second expresion)) 'quote))
+    (list nombre-expresion (second (second expresion)))
+    expresion
+    )
+  )
+
 ; user=> (evaluar-define '(define x 2) '(x 1))
 ; (#<unspecified> (x 2))
 ; user=> (evaluar-define '(define (f x) (+ x 1)) '(x 1))
@@ -1019,7 +1027,7 @@
     (cond
       (< (count expresion) 3) (list (generar-mensaje-error :missing-or-extra "define" expresion) ambiente)
       (and (not (= 3 (count expresion))) (not (seq? (second expresion))) ) (list (generar-mensaje-error :missing-or-extra "define" expresion) ambiente)
-      (symbol? nombre-expresion) (devolver-ambiente (rest expresion) ambiente)
+      (symbol? nombre-expresion) (devolver-ambiente (revisar-quote nombre-expresion (rest expresion)) ambiente)
       (not (seq? nombre-expresion)) (list (generar-mensaje-error :bad-variable "define" expresion) ambiente)
       (empty? nombre-expresion) (list (generar-mensaje-error :bad-variable "define" expresion) ambiente)
       :else (devolver-ambiente (crear-lambda (rest expresion)) ambiente)
@@ -1061,7 +1069,7 @@
   "Evalua dos valores de verdad de Scheme (#t o #f) siguiendo las reglas logicas de un OR.
   Si no es (#t o #f) devuelve lo encontrado"
   (cond
-    (not (igual? (symbol "#f") expresion)) (reduced expresion)
+    (not (igual? (symbol "#f") (first (evaluar expresion ambiente)))) (reduced (first (evaluar expresion ambiente)))
     :else ambiente
     )
   )
