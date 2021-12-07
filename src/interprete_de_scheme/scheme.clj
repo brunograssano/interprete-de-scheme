@@ -710,10 +710,7 @@
 ; (and (or #F #f #t #T) #T)
 (defn restaurar-bool [cadena]
   "Cambia, en un codigo leido con read-string, %t por #t y %f por #f (y sus respectivas versiones en mayusculas)."
-  (if (string? cadena)
-    (restaurar-secuencias (read-string cadena))
-    (restaurar-secuencias cadena)
-    )
+  (restaurar-secuencias cadena)
 )
 
 (defn normalizar-symbol [simbolo]
@@ -733,6 +730,7 @@
 (defn igual? [elemento1 elemento2]
   "Verifica la igualdad entre dos elementos al estilo de Scheme (case-insensitive)"
   (cond
+    (and (seq? elemento1) (seq? elemento2)) (= (normalizar-symbol elemento1) (normalizar-symbol elemento2))
     (and (symbol? elemento1) (symbol? elemento2)) (= (normalizar-symbol elemento1) (normalizar-symbol elemento2))
     :else (= elemento1 elemento2)
     )
@@ -991,7 +989,7 @@
 (defn crear-lambda [expresion]
   "Arma una expresion lambda a partir de la definicion de una funcion. Se devuelve una lista donde primero viene el nombre
    y despues otra lista con lambda seguido de una lista con argumentos y otra lista de la funcion"
-  (list (ffirst expresion) (list 'lambda (rest (first expresion)) (last expresion)) )
+  (list (ffirst expresion) (concat (list 'lambda (rest (first expresion))) (rest expresion)) )
   )
 
 (defn devolver-ambiente [expresion ambiente]
@@ -1019,11 +1017,12 @@
   "Evalua una expresion `define`. Devuelve una lista con el resultado y un ambiente actualizado con la definicion."
   (let [nombre-expresion (second expresion)]
     (cond
-    (not (= 3 (count expresion))) (list (generar-mensaje-error :missing-or-extra "define" expresion) ambiente)
-    (symbol? nombre-expresion) (devolver-ambiente (rest expresion) ambiente)
-    (not (seq? nombre-expresion)) (list (generar-mensaje-error :bad-variable "define" expresion) ambiente)
-    (empty? nombre-expresion) (list (generar-mensaje-error :bad-variable "define" expresion) ambiente)
-    :else (devolver-ambiente (crear-lambda (rest expresion)) ambiente)
+      (< (count expresion) 3) (list (generar-mensaje-error :missing-or-extra "define" expresion) ambiente)
+      (and (not (= 3 (count expresion))) (not (seq? (second expresion))) ) (list (generar-mensaje-error :missing-or-extra "define" expresion) ambiente)
+      (symbol? nombre-expresion) (devolver-ambiente (rest expresion) ambiente)
+      (not (seq? nombre-expresion)) (list (generar-mensaje-error :bad-variable "define" expresion) ambiente)
+      (empty? nombre-expresion) (list (generar-mensaje-error :bad-variable "define" expresion) ambiente)
+      :else (devolver-ambiente (crear-lambda (rest expresion)) ambiente)
     ))
   )
 
@@ -1049,10 +1048,11 @@
         caso-verdadero (nth expresion 2 (symbol "#<unspecified>")),
         caso-falso (nth expresion 3 (symbol "#<unspecified>")),]
     (cond
-        (< (count expresion) 3) (list (generar-mensaje-error :missing-or-extra "if" expresion) ambiente)
-        (or (not (symbol? condicion) ) (igual? (symbol "#t") condicion) ) (evaluar caso-verdadero ambiente)
-        (= (symbol "#<unspecified>") caso-falso) (list caso-falso ambiente)
-        :else (evaluar caso-falso ambiente)
+        (not (or (= (count expresion) 3) (= (count expresion) 4))) (list (generar-mensaje-error :missing-or-extra "if" expresion) ambiente)
+        (igual? (symbol "#f") condicion) (if (= (symbol "#<unspecified>") caso-falso)
+                                           (list caso-falso ambiente)
+                                           (evaluar caso-falso ambiente))
+        :else (evaluar caso-verdadero ambiente)
       )
     )
   )
@@ -1061,8 +1061,7 @@
   "Evalua dos valores de verdad de Scheme (#t o #f) siguiendo las reglas logicas de un OR.
   Si no es (#t o #f) devuelve lo encontrado"
   (cond
-    (not (symbol? expresion)) (reduced expresion)
-    (igual? (symbol "#t") (first (evaluar expresion ambiente))) (reduced (symbol "#t"))
+    (not (igual? (symbol "#f") expresion)) (reduced expresion)
     :else ambiente
     )
   )

@@ -97,15 +97,19 @@
 
 (deftest restaurar-bool-test
   (testing "Sin bool"
-    (is (= '() (restaurar-bool "()")))
-    (is (= '(no hay bool) (restaurar-bool "(no hay bool)")))
-    (is (= '(+ 1 1) (restaurar-bool "(+ 1 1)")))
-    (is (= '(- 1 1) (restaurar-bool "(- 1 1)")))
-    (is (= '(zero? 0) (restaurar-bool "(zero? 0)")))
+    (is (= '() (restaurar-bool (read-string "()"))))
+    (is (= '(no hay bool) (restaurar-bool (read-string "(no hay bool)"))))
+    (is (= '(+ 1 1) (restaurar-bool (read-string "(+ 1 1)"))))
+    (is (= '(- 1 1) (restaurar-bool (read-string "(- 1 1)"))))
+    (is (= '(zero? 0) (restaurar-bool (read-string "(zero? 0)"))))
     )
   (testing "Con bool"
-    (is (= (list 'or (symbol "#F") (symbol "#f") (symbol "#t") (symbol "#T")) (restaurar-bool "(or %F %f %t %T)")))
-    (is (= (list 'and (list 'or (symbol "#F") (symbol "#f") (symbol "#t") (symbol "#T")) (symbol "#T")) (restaurar-bool "(and (or %F %f %t %T) %T)")))
+    (is (= (list 'or (symbol "#F") (symbol "#f") (symbol "#t") (symbol "#T"))
+           (restaurar-bool (read-string "(or %F %f %t %T)"))))
+    (is (= (list 'and (list 'or (symbol "#F") (symbol "#f") (symbol "#t") (symbol "#T")) (symbol "#T"))
+           (restaurar-bool (read-string "(and (or %F %f %t %T) %T)"))))
+    (is (= (list 'and (list 'or (list (symbol "#F")) (list (symbol "#f") (list (symbol "#t"))) (symbol "#T")) (symbol "#T"))
+           (restaurar-bool (read-string "(and (or (%F) (%f (%t)) %T) %T)"))))
     )
   )
 
@@ -115,6 +119,7 @@
     (is (true? (igual? 'if 'if)))
     (is (true? (igual? 'If 'iF)))
     (is (true? (igual? "A" "A")))
+    (is (true? (igual? '(a (A)) '(A (a)) )))
     (is (true? (igual? 1 1)))
     (is (true? (igual? '(1 2) '(1 2))))
     (is (true? (igual? nil nil)))
@@ -279,15 +284,24 @@
 
 (deftest evaluar-define-test
   (testing "Casos correctos"
-    (is (= (list (symbol "#<unspecified>") '(x 2)) (evaluar-define '(define x 2) '(x 1))))
-    (is (= (list (symbol "#<unspecified>") '(x 1 f (lambda (x) (+ x 1)))) (evaluar-define '(define (f x) (+ x 1)) '(x 1))))
-    (is (= (list (symbol "#<unspecified>") '(x 1 f (lambda (x y) (+ x y)))) (evaluar-define '(define (f x y) (+ x y)) '(x 1))))
+    (is (= (list (symbol "#<unspecified>") '(x 2))
+           (evaluar-define '(define x 2) '(x 1))))
+    (is (= (list (symbol "#<unspecified>") '(x 1 f (lambda (x) (+ x 1))))
+           (evaluar-define '(define (f x) (+ x 1)) '(x 1))))
+    (is (= (list (symbol "#<unspecified>") '(x 1 f (lambda (x y) (+ x y))))
+           (evaluar-define '(define (f x y) (+ x y)) '(x 1))))
+    (is (= (list (symbol "#<unspecified>") '(x 1 f (lambda (x) (display x) (newline) (+ x 1))))
+           (evaluar-define '(define (f x) (display x) (newline) (+ x 1)) '(x 1))))
     )
   (testing "Error de faltante o extra en expresion"
-    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'missing 'or 'extra 'expression '(define)) '(x 1)) (evaluar-define '(define) '(x 1))))
-    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'missing 'or 'extra 'expression '(define x)) '(x 1)) (evaluar-define '(define x) '(x 1))))
-    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'missing 'or 'extra 'expression '(define x 2 3)) '(x 1)) (evaluar-define '(define x 2 3) '(x 1))))
-    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'missing 'or 'extra 'expression '(define ())) '(x 1)) (evaluar-define '(define ()) '(x 1))))
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'missing 'or 'extra 'expression '(define)) '(x 1))
+           (evaluar-define '(define) '(x 1))))
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'missing 'or 'extra 'expression '(define x)) '(x 1))
+           (evaluar-define '(define x) '(x 1))))
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'missing 'or 'extra 'expression '(define x 2 3)) '(x 1))
+           (evaluar-define '(define x 2 3) '(x 1))))
+    (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'missing 'or 'extra 'expression '(define ())) '(x 1))
+           (evaluar-define '(define ()) '(x 1))))
     )
   (testing "Error de bad variable"
     (is (= (list (list (symbol ";ERROR:") (symbol  (str "define:")) 'bad 'variable '(define () 2)) '(x 1)) (evaluar-define '(define () 2) '(x 1))))
