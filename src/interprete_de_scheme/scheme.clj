@@ -694,18 +694,17 @@
   (st/replace cadena #"#([tTfF])" (str "%" "$1"))
 )
 
-(defn restaurar-secuencias [lista]
-  (if (seq? lista)
-        (apply list
-               (replace
+(defn restaurar-secuencias [elem-secuencia]
+  (cond
+    (seq? elem-secuencia) (apply list (replace
                   {(symbol "%f")(symbol "#f"),
                    (symbol "%F")(symbol "#F"),
                    (symbol "%t")(symbol "#t"),
                    (symbol "%T")(symbol "#T")}
-                  (vec (map restaurar-secuencias lista))
-                  )
-           )
-        lista
+                  (vec (map restaurar-secuencias elem-secuencia))
+                  ))
+    (string? elem-secuencia) (st/replace elem-secuencia #"%([tTfF])" (str "#" "$1"))
+    :else elem-secuencia
     )
   )
 
@@ -714,9 +713,17 @@
 ; (and (or #F #f #t #T) #T)
 ; user=> (restaurar-bool (read-string "(and (or %F %f %t %T) %T)") )
 ; (and (or #F #f #t #T) #T)
-(defn restaurar-bool [cadena]
+(defn restaurar-bool [leido-a-clj]
   "Cambia, en un codigo leido con read-string, %t por #t y %f por #f (y sus respectivas versiones en mayusculas)."
-  (restaurar-secuencias cadena)
+  (cond
+    (seq? leido-a-clj) (restaurar-secuencias leido-a-clj)
+    (string? leido-a-clj) (st/replace leido-a-clj #"%([tTfF])" (str "#" "$1"))
+    (= leido-a-clj (symbol "%t")) (symbol "#t")
+    (= leido-a-clj (symbol "%f")) (symbol "#f")
+    (= leido-a-clj (symbol "%T")) (symbol "#T")
+    (= leido-a-clj (symbol "%F")) (symbol "#F")
+    :else leido-a-clj
+    )
 )
 
 (defn normalizar-symbol [simbolo]
@@ -805,13 +812,17 @@
 (defn fnc-read
   "Devuelve la lectura de un elemento de Scheme desde la terminal/consola."
   ([]
-   (symbol (leer-entrada))
+   (let [entrada (leer-entrada)]
+     (let [entrada-protegida (proteger-bool-en-str entrada)]
+       (restaurar-bool (read-string entrada-protegida))
+       )
+     )
    )
   ([puerto]
-   (generar-mensaje-error :io-ports-not-implemented read)
-   )
-  ([puerto & more]
-   (generar-mensaje-error :wrong-number-args-prim-proc "read")
+   (if (= 1 (count puerto))
+     (generar-mensaje-error :io-ports-not-implemented read)
+     (generar-mensaje-error :wrong-number-args-prim-proc "read")
+     )
    )
 )
 

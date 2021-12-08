@@ -96,20 +96,26 @@
   )
 
 (deftest restaurar-bool-test
-  (testing "Sin bool"
-    (is (= '() (restaurar-bool (read-string "()"))))
-    (is (= '(no hay bool) (restaurar-bool (read-string "(no hay bool)"))))
-    (is (= '(+ 1 1) (restaurar-bool (read-string "(+ 1 1)"))))
-    (is (= '(- 1 1) (restaurar-bool (read-string "(- 1 1)"))))
-    (is (= '(zero? 0) (restaurar-bool (read-string "(zero? 0)"))))
-    )
-  (testing "Con bool"
-    (is (= (list 'or (symbol "#F") (symbol "#f") (symbol "#t") (symbol "#T"))
-           (restaurar-bool (read-string "(or %F %f %t %T)"))))
-    (is (= (list 'and (list 'or (symbol "#F") (symbol "#f") (symbol "#t") (symbol "#T")) (symbol "#T"))
-           (restaurar-bool (read-string "(and (or %F %f %t %T) %T)"))))
-    (is (= (list 'and (list 'or (list (symbol "#F")) (list (symbol "#f") (list (symbol "#t"))) (symbol "#T")) (symbol "#T"))
-           (restaurar-bool (read-string "(and (or (%F) (%f (%t)) %T) %T)"))))
+  (let [t (symbol "#t"), T (symbol "#T"), f (symbol "#f"), F (symbol "#F")]
+    (testing "Sin bool"
+      (is (= '() (restaurar-bool (read-string "()"))))
+      (is (= '(no hay bool) (restaurar-bool (read-string "(no hay bool)"))))
+      (is (= '(+ 1 1) (restaurar-bool (read-string "(+ 1 1)"))))
+      (is (= '(- 1 1) (restaurar-bool (read-string "(- 1 1)"))))
+      (is (= '(zero? 0) (restaurar-bool (read-string "(zero? 0)"))))
+      )
+    (testing "Con bool"
+      (is (= (list 'or F f t T )
+             (restaurar-bool (read-string "(or %F %f %t %T)"))))
+      (is (= (list 'and (list 'or F f (symbol "#t") T) T)
+             (restaurar-bool (read-string "(and (or %F %f %t %T) %T)"))))
+      (is (= (list 'and (list 'or (list F) (list f (list t)) T) T)
+             (restaurar-bool (read-string "(and (or (%F) (%f (%t)) %T) %T)"))))
+      (is (= "#t (#f (#F (#T)))"
+             (restaurar-bool "%t (%f (%F (%T)))")))
+      (is (= (list 'and (list 'or (list F) (list f (list t)) "#t" T) T)
+             (restaurar-bool (read-string "(and (or (%F) (%f (%t)) \"%t\" %T) %T)"))))
+      )
     )
   )
 
@@ -418,5 +424,21 @@
     (is (= "Hola" (with-in-str "Hola" (leer-entrada))))
     (is (= "(Hola mundo)" (with-in-str "(Hola\nmundo)" (leer-entrada))))
     (is (= "( prueba( con( varios niveles) ))" (with-in-str "(\nprueba(\ncon(\nvarios\nniveles)\n))" (leer-entrada))))
+    )
+  )
+
+
+(deftest fnc-read-test
+  (testing "Lectura de elementos de scheme"
+    (is (= 'Hola (with-in-str "Hola" (fnc-read))))
+    (is (= '(Hola mundo) (with-in-str "(Hola\nmundo)" (fnc-read))))
+    (is (= 5 (with-in-str "5" (fnc-read))))
+    (is (= '(+ 1 1) (with-in-str "(+ 1 1)" (fnc-read))))
+    (is (= (symbol "#t") (with-in-str "#t" (fnc-read))))
+    (is (= (symbol "#T") (with-in-str "#T" (fnc-read))))
+    (is (= (symbol "#f") (with-in-str "#f" (fnc-read))))
+    (is (= (symbol "#F") (with-in-str "#F" (fnc-read))))
+    (is (= (list (symbol "#t") (list (symbol "#f"))) (with-in-str "(#t (#f))" (fnc-read))))
+    (is (= "#t #f #F #T" (with-in-str "\"#t #f #F #T\"" (fnc-read))))
     )
   )
