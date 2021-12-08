@@ -586,6 +586,8 @@
   )
 
 (defn sumar-parentesis [acumulado caracter]
+  "Suma o resta dependiendo de si se tiene un parentesis. Si el acumulado es negativo corta el ciclo de reducir.
+  Si no es parentesis continua devolviendo el total acumulado hasta el momento."
   (cond
     (neg? acumulado) (reduced acumulado)
     (= caracter (first (seq "("))) (inc acumulado)
@@ -610,6 +612,9 @@
 )
 
 (defn es-elemento-en-coleccion [buscado salto posicion elemento-actual]
+  "Retorna la posicion en la que se encuentra un elemento buscado en una coleccion.
+  Permite establecer un salto, de forma tal de por ejemplo no analizar los elementos pares.
+  Si no se encuentra el elemento o no se analiza se devuelve el numero de la posicion del siguiente."
   (cond
     (zero? (mod posicion salto)) (if (igual? buscado elemento-actual) (reduced posicion) (inc posicion))
     :else (inc posicion)
@@ -617,6 +622,8 @@
   )
 
 (defn posicion-en-ambiente? [ambiente clave]
+  "Busca la posicion en un ambiente de una clave. Este ambiente debe estar conformado con claves en posiciones pares,
+   y valores en las impares. Si no se encuentra la clave devuelve un valor negativo."
   (let [buscar-pares (partial es-elemento-en-coleccion clave 2)]
     (let [resultado (reduce buscar-pares 0 ambiente)]
       (if (and (< resultado (count ambiente)) (not (empty? ambiente)))
@@ -665,6 +672,7 @@
 )
 
 (defn es-error-o-warning? [elemento]
+  "Revisa si se tiene un error o un warning."
   (or (= elemento (symbol ";ERROR:"))(= elemento (symbol ";WARNING:")))
   )
 
@@ -695,6 +703,8 @@
 )
 
 (defn restaurar-secuencias [elem-secuencia]
+  "Restaura los valores booleanos de Scheme dado elementos contenidos en una secuencia.
+   Si el elemento en si es otra secuencia, se continua analizando con los elementos que esta tenga."
   (cond
     (seq? elem-secuencia) (apply list (replace
                   {(symbol "%f")(symbol "#f"),
@@ -727,6 +737,7 @@
 )
 
 (defn normalizar-symbol [simbolo]
+  "Normaliza un simbolo, para eso lo convierte en string y lleva a UPPER CASE"
   (st/upper-case (str simbolo))
   )
 
@@ -750,6 +761,8 @@
 )
 
 (defn fusionar-listas [lista elemento-actual]
+  "Fusiona la lista, recibe la lista acumuladora y el elemento de la lista original.
+  Si no fuese una lista devuelve error."
   (if (seq? elemento-actual)
     (concat lista elemento-actual)
     (reduced (generar-mensaje-error :append "append" elemento-actual))
@@ -768,6 +781,9 @@
 )
 
 (defn comparar-coleccion [primero segundo]
+  "Compara toda una colección devolviendo el ultimo elemento analizado si son iguales,
+   o el codigo :elements-are-not-equal y terminando en el momento si fuesen distintos los elementos.
+   (La decision de esto y no devolver falso es para evitar casos en donde haya listas con todos falsos)"
   (if (igual? primero segundo)
     segundo
     (reduced :elements-are-not-equal)
@@ -827,6 +843,8 @@
 )
 
 (defn operacion [accion accion-str acumulado numero]
+  "Realiza una operacion matematica dado un acumulado y un numero.
+   Necesita de su representacion o nombre para poder agregarla al mensaje de error."
   (cond
     (not (number? numero)) (reduced (generar-mensaje-error :wrong-type-arg2 accion-str numero))
     :else (accion acumulado numero)
@@ -885,6 +903,9 @@
 )
 
 (defn esta-ordenada? [orden orden-str primero segundo]
+  "Analiza sucesivamente si una lista cumple con un orden dado, si no lo cumple devuelve falso,
+   si lo cumple devuelve el siguiente elemento a analizar
+  Necesita de su representacion o nombre para mostrarse en el mensaje de error"
   (cond
     (not (number? segundo)) (reduced (generar-mensaje-error :wrong-type-arg2 orden-str segundo))
     (orden primero segundo) segundo
@@ -893,6 +914,8 @@
   )
 
 (defn evaluar-orden-en-secuencia [lista orden-a-usar representacion-orden]
+  "Algoritmo para comparar el orden de una secuencia de forma generica.
+   Necesita del orden y su representacion o nombre grafico en caso de algun error."
   (cond
     (zero? (count lista)) (symbol "#t")
     (not (number? (first lista))) (generar-mensaje-error :wrong-type-arg1 representacion-orden (first lista))
@@ -1016,6 +1039,7 @@
 
 
 (defn revisar-quote [nombre-expresion expresion]
+  "Revisa un elemento del define simple, quitando el quote si lo tiene"
   (if (and (seq? (second expresion)) (igual? (first (second expresion)) 'quote))
     (list nombre-expresion (second (second expresion)))
     expresion
