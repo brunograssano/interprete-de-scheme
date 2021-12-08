@@ -1123,7 +1123,7 @@
       :else (let [resultado (buscar clave ambiente)]
               (if (error? resultado)
                 (list resultado ambiente)
-                (list (symbol "#<unspecified>") (actualizar-amb ambiente clave valor))
+                (list (symbol "#<unspecified>") (actualizar-amb ambiente clave (first (evaluar valor ambiente))))
                 )
               )
       )

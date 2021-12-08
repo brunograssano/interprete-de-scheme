@@ -314,6 +314,7 @@
 (deftest evaluar-set!-test
   (testing "Casos correctos"
     (is (= (list (symbol "#<unspecified>") '(x 1)) (evaluar-set! '(set! x 1) '(x 0))))
+    (is (= (list (symbol "#<unspecified>") '(x 2 + +)) (evaluar-set! '(set! x (+ 1 1)) '(x 0 + +))))
     (is (= (list (symbol "#<unspecified>") '(x 0 y 3 z 3)) (evaluar-set! '(set! y 3) '(x 0 y 1 z 3))))
     )
   (testing "Error de faltante o extra en expresion"
