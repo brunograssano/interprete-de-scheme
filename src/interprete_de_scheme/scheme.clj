@@ -750,7 +750,7 @@
 )
 
 (defn fusionar-listas [lista elemento-actual]
-  (if (list? elemento-actual)
+  (if (seq? elemento-actual)
     (concat lista elemento-actual)
     (reduced (generar-mensaje-error :append "append" elemento-actual))
     )

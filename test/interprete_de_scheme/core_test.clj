@@ -141,6 +141,8 @@
   (testing "Con argumentos correctos"
     (is (= '() (fnc-append '())))
     (is (= '(1 2 3 4 5 6 7) (fnc-append '( (1 2) (3) (4 5) (6 7)))))
+    (is (= '(1) (fnc-append '( (1) ) )))
+    (is (= '(2 3 3 ((7)) 5) (fnc-append '((2 3)(3 ((7))) (5)) )))
     (is (= '(1 2 3 4 5 6 7 8 9) (fnc-append '( (1) (2) (3) (4) (5) (6) (7) (8) (9) ))))
     )
   (testing "Con argumentos erroneos"
