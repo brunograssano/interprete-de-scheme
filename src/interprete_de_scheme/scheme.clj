@@ -563,17 +563,23 @@
   "Lee una cadena desde la terminal/consola. Si los parentesis no estan correctamente balanceados al presionar Enter/Intro,
    se considera que la cadena ingresada es una subcadena y el ingreso continua. De lo contrario, se la devuelve completa."
   (let [entrada (read-line)]
-    (if (zero? (verificar-parentesis entrada))
-      entrada
-      (leer-entrada entrada)
+    (let [cant-parentesis (verificar-parentesis entrada)]
+      (cond
+        (zero? cant-parentesis) entrada
+        (neg? cant-parentesis) (do (println (generar-mensaje-error :warning-paren)) entrada)
+        :else (leer-entrada entrada)
+        )
       )
     )
   )
   ([entrada-anterior]
    (let [entrada (apply str (concat entrada-anterior " " (read-line)))]
-     (if (zero? (verificar-parentesis entrada))
-       entrada
-       (leer-entrada entrada)
+     (let [cant-parentesis (verificar-parentesis entrada)]
+       (cond
+         (zero? cant-parentesis) entrada
+         (neg? cant-parentesis) (do (println (generar-mensaje-error :warning-paren)) entrada)
+         :else (leer-entrada entrada)
+         )
        )
      )
    )
@@ -1057,7 +1063,8 @@
         caso-falso (nth expresion 3 (symbol "#<unspecified>")),]
     (cond
         (not (or (= (count expresion) 3) (= (count expresion) 4))) (list (generar-mensaje-error :missing-or-extra "if" expresion) ambiente)
-        (igual? (symbol "#f") condicion) (if (= (symbol "#<unspecified>") caso-falso)
+        (igual? (symbol "#f") (first (evaluar condicion ambiente)))
+                                    (if (= (symbol "#<unspecified>") caso-falso)
                                            (list caso-falso ambiente)
                                            (evaluar caso-falso ambiente))
         :else (evaluar caso-verdadero ambiente)
