@@ -1,4 +1,5 @@
 # Interprete de scheme
+![Clojure CI](https://github.com/brunograssano/interprete-de-scheme/workflows/Clojure%20CI/badge.svg)
 
 Trabajo practico de la materia Lenguajes Formales (75.14) que consistio en el desarrollo de un interprete del
 lenguaje Scheme en Clojure.
